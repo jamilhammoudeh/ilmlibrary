@@ -1,26 +1,111 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-teal-900: #004d40;
+  --color-teal-800: #00695c;
+  --color-teal-700: #00796b;
+  --color-teal-600: #2c786c;
+  --color-teal-100: #e0f7fa;
+  --color-teal-50: #e8f5f3;
+  --color-cream: #faf8f5;
+  --color-green-accent: #006e3b;
+
+  --font-sans: var(--font-roboto);
+  --font-arabic: var(--font-scheherazade);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  overflow-x: clip;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+/* Arabic text styling */
+.arabic-text {
+  font-family: var(--font-arabic), serif;
+  direction: rtl;
+  line-height: 2;
+}
+
+.card-shadow {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-shadow:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.35s ease-out both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fade-in 0.3s ease-out both;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+/* Print styles */
+@media print {
+  nav, footer, .scroll-to-top, button { display: none !important; }
+  body { background: white !important; }
+  .dua-item { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ddd !important; margin-bottom: 12px !important; }
+}
+
+/* Tajweed color rules (match the common Madinah Mushaf coloring) */
+tajweed.ham_wasl, tajweed.laam_shamsiyah { color: #9ca3af; }
+tajweed.slnt, tajweed.silent { color: #b0b0b0; }
+tajweed.madda_normal { color: #dc2626; }
+tajweed.madda_permissible { color: #e11d48; }
+tajweed.madda_necessary { color: #b91c1c; }
+tajweed.madda_obligatory { color: #991b1b; }
+tajweed.ghunnah, tajweed.idgham_ghunnah { color: #15803d; }
+tajweed.qalaqah, tajweed.qalqalah { color: #d97706; }
+tajweed.ikhafa, tajweed.ikhafa_shafawi { color: #7e22ce; }
+tajweed.iqlab { color: #b45309; }
+tajweed.idgham_shafawi,
+tajweed.idgham_wo_ghunnah,
+tajweed.idgham_mutajanisayn,
+tajweed.idgham_mutaqaribayn { color: #4b5563; }
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 77, 64, 0.06) 0%,
+    rgba(0, 77, 64, 0.12) 50%,
+    rgba(0, 77, 64, 0.06) 100%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
 }

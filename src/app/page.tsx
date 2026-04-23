@@ -1,65 +1,70 @@
+import Link from "next/link";
 import Image from "next/image";
+import { DuaSlideshow } from "@/components/dua-slideshow";
+import { SearchBarLive } from "@/components/search-bar-live";
+import { RecentlyRead } from "@/components/recently-read";
 
-export default function Home() {
+const sections = [
+  { href: "/books", label: "Books", image: "/images/sections/books.jpg" },
+  { href: "/quran", label: "Quran", image: "/images/sections/quran.jpg" },
+  { href: "/duas", label: "Duas", image: "/images/sections/duas.jpg" },
+  { href: "/lectures", label: "Lectures", image: "/images/sections/lectures.jpg" },
+  { href: "/khutbas", label: "Khutbas", image: "/images/sections/khutbas.jpg" },
+  { href: "/why-islam", label: "Why Islam?", image: "/images/sections/kaabah.jpeg" },
+  { href: "/guides", label: "Islamic Guides", image: "/images/sections/resources.jpg" },
+  { href: "/wisdom", label: "Wisdom", image: "/images/sections/wisdom.jpeg" },
+  { href: "/donate", label: "Donate", image: "/images/sections/donate.jpeg" },
+];
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      {/* Hero */}
+      <section className="pt-10 md:pt-14 pb-4 px-5 text-center">
+        <h1 className="text-[44px] sm:text-[60px] md:text-[80px] font-bold font-[family-name:var(--font-playfair)] text-teal-900 leading-none mb-2">
+          Ilm Library
+        </h1>
+        <p className="text-[22px] sm:text-[28px] md:text-[34px] font-normal font-[family-name:var(--font-amiri)] text-teal-900 max-w-[600px] mx-auto px-2 [text-shadow:1px_1px_16px_rgba(0,0,0,0.55)]">
+          Access Islamic Knowledge and Resources
+        </p>
+        <div className="mt-6 md:mt-8 px-2">
+          <SearchBarLive placeholder="Search books, lectures, duas..." />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Dua slideshow */}
+      <div className="mx-auto px-4 sm:px-8 md:px-12 mt-6 mb-10 md:mb-14">
+        <DuaSlideshow />
+      </div>
+
+      {/* Continue Reading */}
+      <RecentlyRead />
+
+      {/* Section cards */}
+      <section className="max-w-[1300px] mx-auto px-5 pb-20">
+        <div className="flex flex-wrap justify-center gap-6">
+          {sections.map((section) => (
+            <Link
+              key={section.href}
+              href={section.href}
+              className="group basis-[calc(50%-0.75rem)] sm:basis-[calc(33.333%-1rem)] md:basis-[calc(20%-1.2rem)] bg-white rounded-2xl p-5 shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_24px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-200 text-center"
+            >
+              <div className="w-full aspect-square relative rounded-xl overflow-hidden bg-teal-50 mb-4">
+                <Image
+                  src={section.image}
+                  alt={section.label}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <span className="block text-lg md:text-xl font-bold text-teal-900">
+                {section.label}
+              </span>
+            </Link>
+          ))}
         </div>
-      </main>
-    </div>
+      </section>
+    </>
   );
 }
