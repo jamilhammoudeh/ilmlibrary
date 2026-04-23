@@ -46,6 +46,19 @@ export default function ReadBookPage({
     );
   }
 
+  // Detect mobile
+  const isMobile = typeof window !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  // On mobile, redirect directly to the PDF so the native viewer handles it
+  if (isMobile && book.pdf_url) {
+    window.location.href = book.pdf_url;
+    return (
+      <div className="fixed inset-0 z-[9999] bg-[#f0f0f0] flex items-center justify-center">
+        <p className="text-gray-500">Opening PDF...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col bg-[#f0f0f0]">
       {/* Top bar */}
