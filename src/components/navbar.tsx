@@ -11,7 +11,6 @@ const navLinks = [
   { href: "/quran", label: "Quran" },
   { href: "/duas", label: "Duas" },
   { href: "/lectures", label: "Lectures" },
-  { href: "/khutbas", label: "Khutbas" },
   { href: "/why-islam", label: "Why Islam" },
   { href: "/guides", label: "Islamic Guides" },
   { href: "/wisdom", label: "Wisdom" },

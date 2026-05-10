@@ -9,7 +9,6 @@ const sections = [
   { href: "/quran", label: "Quran", image: "/images/sections/quran.jpg" },
   { href: "/duas", label: "Duas", image: "/images/sections/duas.jpg" },
   { href: "/lectures", label: "Lectures", image: "/images/sections/lectures.jpg" },
-  { href: "/khutbas", label: "Khutbas", image: "/images/sections/khutbas.jpg" },
   { href: "/why-islam", label: "Why Islam?", image: "/images/sections/kaabah.jpeg" },
   { href: "/guides", label: "Islamic Guides", image: "/images/sections/resources.jpg" },
   { href: "/wisdom", label: "Wisdom", image: "/images/sections/wisdom.jpeg" },

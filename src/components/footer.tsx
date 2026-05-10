@@ -9,7 +9,6 @@ const libraryLinks = [
   { href: "/quran", label: "Quran" },
   { href: "/duas", label: "Duas" },
   { href: "/lectures", label: "Lectures" },
-  { href: "/khutbas", label: "Khutbas" },
 ];
 
 const learnLinks = [

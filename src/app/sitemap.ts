@@ -7,7 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Static pages
   const staticPages = [
-    "", "/books", "/quran", "/duas", "/lectures", "/khutbas",
+    "", "/books", "/quran", "/duas", "/lectures",
     "/why-islam", "/why-islam/proving-islam", "/why-islam/defending-islam",
     "/why-islam/refutations", "/guides", "/wisdom", "/donate", "/about",
     "/quran/read", "/quran/reciters", "/quran/tajweed", "/quran/tafseer",
