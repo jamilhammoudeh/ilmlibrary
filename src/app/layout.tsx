@@ -49,12 +49,34 @@ export const metadata: Metadata = {
     template: "%s | Ilm Library",
   },
   description: "Access Islamic Knowledge and Resources",
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+    shortcut: "/icon-192.png",
+  },
   openGraph: {
     title: "Ilm Library",
     description: "Access Islamic Knowledge and Resources",
     url: "https://ilmlibrary.org",
     siteName: "Ilm Library",
     type: "website",
+    images: [
+      {
+        url: "/logo.png",
+        width: 512,
+        height: 512,
+        alt: "Ilm Library",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Ilm Library",
+    description: "Access Islamic Knowledge and Resources",
+    images: ["/logo.png"],
   },
 };
 
@@ -70,6 +92,36 @@ export default function RootLayout({
         <meta name="theme-color" content="#004d40" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Ilm Library",
+              url: "https://ilmlibrary.org",
+              logo: "https://ilmlibrary.org/logo.png",
+              description: "Access Islamic Knowledge and Resources",
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Ilm Library",
+              url: "https://ilmlibrary.org",
+              potentialAction: {
+                "@type": "SearchAction",
+                target:
+                  "https://ilmlibrary.org/search?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            }),
+          }}
+        />
       </head>
       <body className="min-h-screen flex flex-col font-sans antialiased">
         <Navbar />
