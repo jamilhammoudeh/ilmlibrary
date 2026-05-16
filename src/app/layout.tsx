@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo.png",
+        url: "/icon-512.png?v=2",
         width: 512,
         height: 512,
         alt: "Ilm Library",
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Ilm Library",
     description: "Access Islamic Knowledge and Resources",
-    images: ["/logo.png"],
+    images: ["/icon-512.png?v=2"],
   },
 };
 
@@ -100,7 +100,7 @@ export default function RootLayout({
               "@type": "Organization",
               name: "Ilm Library",
               url: "https://ilmlibrary.org",
-              logo: "https://ilmlibrary.org/logo.png",
+              logo: "https://ilmlibrary.org/icon-512.png?v=2",
               description: "Access Islamic Knowledge and Resources",
             }),
           }}
