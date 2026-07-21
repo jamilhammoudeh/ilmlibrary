@@ -1,0 +1,46 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ilmlibrary",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "ilmlibrary"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ilmlibrary",
+      "database_id": "287f4e64-b950-403c-8e5f-d4c4fae3186d",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "ilmlibrary-files"
+    }
+  ],
+  "vars": {
+    // Filled in when the Cloudflare Access app is created (Phase 1d/1f).
+    "CF_ACCESS_TEAM_DOMAIN": "",
+    "CF_ACCESS_AUD": "",
+    "FILES_PUBLIC_URL": "https://files.ilmlibrary.org"
+  },
+  // Custom-domain routes are enabled at DNS cutover — until then the worker
+  // serves only on its workers.dev URL while Vercel keeps serving production.
+  // "routes": [
+  //   { "pattern": "www.ilmlibrary.org", "custom_domain": true },
+  //   { "pattern": "ilmlibrary.org", "custom_domain": true }
+  // ],
+  "observability": {
+    "enabled": true
+  }
+}

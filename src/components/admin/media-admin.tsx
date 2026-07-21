@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import type { Category } from "@/types/database";
 import {
   Plus,
@@ -23,7 +23,6 @@ import { Field, SelectField, PrimaryButton, GhostButton } from "./form-fields";
 import { useToast } from "./toast";
 import { BulkBar } from "./bulk-bar";
 import { useUrlString, useUrlNumber, useUrlUpdater } from "@/hooks/use-url-state";
-import { logAudit } from "@/lib/audit";
 
 type MediaItem = {
   id: string;
@@ -94,19 +93,24 @@ function MediaAdminInner({
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from(table).select("*").limit(1000);
-    setItems((data as MediaItem[]) ?? []);
+    try {
+      const { rows } = await adminApi.list<MediaItem>(table, { limit: 1000 });
+      setItems(rows);
+    } catch {
+      setItems([]);
+    }
     setLoading(false);
   }, [table]);
 
   useEffect(() => {
     load();
-    supabase
-      .from("categories")
-      .select("*")
-      .eq("content_type", contentType)
-      .order("name")
-      .then(({ data }) => setCategories(data ?? []));
+    adminApi
+      .list<Category>("categories", {
+        eq: { content_type: contentType },
+        orderBy: [{ col: "name" }],
+      })
+      .then(({ rows }) => setCategories(rows))
+      .catch(() => setCategories([]));
   }, [contentType, load]);
 
   // Handle ?edit=<id> and ?new=1 from URL
@@ -147,25 +151,18 @@ function MediaAdminInner({
       video_url: editing.video_url?.trim() || null,
       category_id: editing.category_id || null,
     };
-    const { data: saved, error } = isNew
-      ? await supabase.from(table).insert(d).select("id").single()
-      : await supabase
-          .from(table)
-          .update(d)
-          .eq("id", editing.id!)
-          .select("id")
-          .single();
-    setSaving(false);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      if (isNew) {
+        await adminApi.insert(table, d);
+      } else {
+        await adminApi.update(table, editing.id!, d);
+      }
+    } catch (err) {
+      setSaving(false);
+      notify(err instanceof Error ? err.message : "Save failed", "error");
       return;
     }
-    logAudit({
-      action: isNew ? "create" : "update",
-      resourceType: contentType,
-      resourceId: (saved as { id?: string } | null)?.id ?? editing.id ?? null,
-      resourceTitle: d.title,
-    });
+    setSaving(false);
     notify(isNew ? `${singularLabel} added` : "Changes saved");
     setEditing(null);
     setIsNew(false);
@@ -174,17 +171,12 @@ function MediaAdminInner({
 
   async function handleDelete(id: string, title: string) {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
-    const { error } = await supabase.from(table).delete().eq("id", id);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.remove(table, id);
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Delete failed", "error");
       return;
     }
-    logAudit({
-      action: "delete",
-      resourceType: contentType,
-      resourceId: id,
-      resourceTitle: title,
-    });
     notify(`${singularLabel} deleted`);
     load();
   }
@@ -196,19 +188,14 @@ function MediaAdminInner({
     )
       return;
     setBulkBusy(true);
-    const titles = items.filter((i) => ids.includes(i.id)).map((i) => i.title);
-    const { error } = await supabase.from(table).delete().in("id", ids);
-    setBulkBusy(false);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.removeMany(table, ids);
+    } catch (err) {
+      setBulkBusy(false);
+      notify(err instanceof Error ? err.message : "Delete failed", "error");
       return;
     }
-    logAudit({
-      action: "bulk_delete",
-      resourceType: contentType,
-      resourceTitle: `${ids.length} ${pluralLabel.toLowerCase()}`,
-      details: { count: ids.length, ids, titles },
-    });
+    setBulkBusy(false);
     notify(`${ids.length} ${singularLabel.toLowerCase()}${ids.length === 1 ? "" : "s"} deleted`);
     setSelected(new Set());
     load();
@@ -217,21 +204,14 @@ function MediaAdminInner({
   async function handleBulkReassign(categoryId: string | null) {
     const ids = Array.from(selected);
     setBulkBusy(true);
-    const { error } = await supabase
-      .from(table)
-      .update({ category_id: categoryId })
-      .in("id", ids);
-    setBulkBusy(false);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.updateMany(table, ids, { category_id: categoryId });
+    } catch (err) {
+      setBulkBusy(false);
+      notify(err instanceof Error ? err.message : "Update failed", "error");
       return;
     }
-    logAudit({
-      action: "bulk_update",
-      resourceType: contentType,
-      resourceTitle: `${ids.length} ${pluralLabel.toLowerCase()}`,
-      details: { count: ids.length, ids, changes: { category_id: categoryId } },
-    });
+    setBulkBusy(false);
     notify(`${ids.length} item${ids.length === 1 ? "" : "s"} updated`);
     setSelected(new Set());
     load();

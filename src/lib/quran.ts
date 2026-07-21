@@ -13,7 +13,7 @@ export const RECITERS = [
 export async function fetchSurahAudioUrl(reciterId: number, surahId: number): Promise<string> {
   try {
     const res = await fetch(`https://api.quran.com/api/v4/chapter_recitations/${reciterId}/${surahId}`);
-    const data = await res.json();
+    const data = (await res.json()) as { audio_file?: { audio_url?: string } };
     return data.audio_file?.audio_url ?? getSurahAudioFallback(reciterId, surahId);
   } catch {
     return getSurahAudioFallback(reciterId, surahId);

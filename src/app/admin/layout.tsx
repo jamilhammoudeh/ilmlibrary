@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import type { Page } from "@/types/database";
 import {
   BookOpen,
@@ -29,7 +29,6 @@ import {
   ScrollText,
 } from "lucide-react";
 import { ToastProvider } from "@/components/admin/toast";
-import { PrimaryButton } from "@/components/admin/form-fields";
 import { CommandPalette, CommandPaletteTrigger } from "@/components/admin/command-palette";
 
 const topNavLinks: { href: string; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
@@ -71,42 +70,45 @@ type SidebarPage = Pick<Page, "id" | "slug" | "parent_id" | "title" | "sort_orde
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [user, setUser] = useState<{ email?: string } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pages, setPages] = useState<SidebarPage[]>([]);
   const [collapsedPages, setCollapsedPages] = useState<Set<string>>(new Set());
 
+  // Cloudflare Access protects /admin at the edge; we only fetch the
+  // verified identity for the sidebar display.
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      setLoading(false);
-    });
+    adminApi
+      .me()
+      .then(({ email }) => setEmail(email))
+      .catch(() => setSessionExpired(true));
   }, []);
 
   const loadPages = useCallback(async () => {
-    const { data } = await supabase
-      .from("pages")
-      .select("id,slug,parent_id,title,sort_order,hidden")
-      .order("sort_order")
-      .order("title");
-    setPages((data as SidebarPage[]) ?? []);
+    try {
+      const { rows } = await adminApi.list<SidebarPage>("pages", {
+        orderBy: [{ col: "sort_order" }, { col: "title" }],
+      });
+      setPages(rows);
+    } catch {
+      // Sidebar tree is non-critical; leave as-is on failure.
+    }
   }, []);
 
   useEffect(() => {
-    if (!user) return;
     loadPages();
     function onChanged() {
       loadPages();
     }
     window.addEventListener("admin:pages:changed", onChanged);
     return () => window.removeEventListener("admin:pages:changed", onChanged);
-  }, [user, loadPages]);
+  }, [loadPages]);
 
   // Refetch on route change — covers admin actions on the pages admin
   useEffect(() => {
-    if (user) loadPages();
-  }, [pathname, user, loadPages]);
+    loadPages();
+  }, [pathname, loadPages]);
 
   const pageTree = useMemo(() => {
     const byParent = new Map<string | null, SidebarPage[]>();
@@ -136,28 +138,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (sidebarOpen) setSidebarOpen(false);
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f0f0f0]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-teal-700 border-t-transparent animate-spin" />
-          <p className="text-sm text-gray-500">Loading admin...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
+  if (sessionExpired) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f0f0f0] px-4">
-        <div className="bg-white rounded-lg border border-gray-200 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center mb-6">
-            <Image src="/logo.png" alt="Ilm Library" width={48} height={48} className="rounded-md mb-3" />
-            <h1 className="text-2xl font-bold text-teal-900">Admin Sign In</h1>
-            <p className="text-sm text-gray-500 mt-1">Ilm Library management</p>
-          </div>
-          <LoginForm onLogin={setUser} />
-        </div>
+        <p className="text-sm text-gray-600">Access session expired — refresh the page to sign in again.</p>
       </div>
     );
   }
@@ -292,18 +276,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-2 px-1">
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-gray-500">Signed in as</p>
-                <p className="text-sm text-gray-900 truncate">{user.email}</p>
+                <p className="text-sm text-gray-900 truncate">{email}</p>
               </div>
-              <button
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  setUser(null);
-                }}
+              <a
+                href="/cdn-cgi/access/logout"
                 className="text-gray-500 hover:text-gray-900 p-1.5 rounded hover:bg-gray-100 transition-colors"
                 title="Sign out"
               >
                 <LogOut size={15} />
-              </button>
+              </a>
             </div>
           </div>
         </aside>
@@ -458,65 +439,5 @@ function PageNavItem({
       </div>
       {children}
     </>
-  );
-}
-
-function LoginForm({ onLogin }: { onLogin: (user: { email?: string }) => void }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-    } else if (data.user) {
-      onLogin(data.user);
-    }
-  }
-
-  const inputCls =
-    "w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-transparent transition-shadow";
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input
-          type="email"
-          required
-          autoFocus
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className={inputCls}
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <input
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className={inputCls}
-        />
-      </div>
-      {error && (
-        <p className="text-rose-600 text-sm bg-rose-50 px-3 py-2 rounded-lg">{error}</p>
-      )}
-      <PrimaryButton type="submit" disabled={loading} className="w-full">
-        {loading ? "Signing in..." : "Sign In"}
-      </PrimaryButton>
-    </form>
   );
 }

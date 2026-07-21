@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { saveProgress } from "@/lib/reading-progress";
+import type { BookWithCategory } from "@/types/database";
 
 export default function ReadBookPage({
   params,
@@ -17,11 +17,18 @@ export default function ReadBookPage({
   useEffect(() => {
     params.then(async ({ bookSlug }) => {
       setSlug(bookSlug);
-      const { data } = await supabase
-        .from("books")
-        .select("title, pdf_url")
-        .eq("slug", bookSlug)
-        .single();
+      let data: { title: string; pdf_url: string | null } | null = null;
+      try {
+        const res = await fetch(
+          `/api/books/by-slug/${encodeURIComponent(bookSlug)}`
+        );
+        if (res.ok) {
+          const json = (await res.json()) as { book: BookWithCategory };
+          data = json.book ?? null;
+        }
+      } catch {
+        // Fall through to the "Book not found." state.
+      }
       setBook(data);
       setLoading(false);
       if (data?.title) {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import {
   Eye,
   TrendingUp,
@@ -70,27 +70,6 @@ function deltaPct(now: number, prev: number) {
   return Math.round(((now - prev) / prev) * 100);
 }
 
-function categorizeUA(ua: string): "Mobile" | "Tablet" | "Desktop" | "Bot" | "Other" {
-  if (!ua) return "Other";
-  const low = ua.toLowerCase();
-  if (/bot|crawler|spider/.test(low)) return "Bot";
-  if (/ipad|tablet/.test(low)) return "Tablet";
-  if (/mobile|iphone|android/.test(low)) return "Mobile";
-  if (/windows|macintosh|linux/.test(low)) return "Desktop";
-  return "Other";
-}
-
-function categorizeReferrer(ref: string | null): string {
-  if (!ref) return "Direct / none";
-  try {
-    const url = new URL(ref);
-    const host = url.hostname.replace(/^www\./, "");
-    return host || "Direct / none";
-  } catch {
-    return ref.slice(0, 40);
-  }
-}
-
 export default function AdminAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [range, setRange] = useState<RangeKey>("14d");
@@ -98,333 +77,36 @@ export default function AdminAnalyticsPage() {
 
   // Chart data: refetches when range changes
   useEffect(() => {
+    let cancelled = false;
     async function loadChart() {
       const days = RANGE_DAYS[range];
-      const dayMs = 86400000;
-      const chartStart = new Date();
-      chartStart.setHours(0, 0, 0, 0);
-      chartStart.setDate(chartStart.getDate() - (days - 1));
-      const compareStart = new Date(chartStart.getTime() - days * dayMs);
-      const compareEnd = new Date(chartStart.getTime());
-
-      type Row = { visited_at: string; visitor_id: string | null };
-
-      const [currentR, compareR] = await Promise.all([
-        supabase
-          .from("page_views")
-          .select("visited_at,visitor_id")
-          .gte("visited_at", chartStart.toISOString())
-          .limit(50000),
-        supabase
-          .from("page_views")
-          .select("visited_at,visitor_id")
-          .gte("visited_at", compareStart.toISOString())
-          .lt("visited_at", compareEnd.toISOString())
-          .limit(50000),
-      ]);
-
-      function emptyBuckets(startAtMidnight: Date): Record<string, number> {
-        const b: Record<string, number> = {};
-        for (let i = 0; i < days; i++) {
-          const d = new Date(startAtMidnight);
-          d.setDate(startAtMidnight.getDate() + i);
-          d.setHours(0, 0, 0, 0);
-          b[d.toISOString()] = 0;
-        }
-        return b;
+      const tz = new Date().getTimezoneOffset();
+      try {
+        const data = await adminApi.get<ChartData>(
+          `/api/admin/analytics?part=chart&days=${days}&tz=${tz}`
+        );
+        if (!cancelled) setChart(data);
+      } catch {
+        // Leave the chart skeleton in place on failure.
       }
-
-      function bucketizeViews(rows: Row[], startAtMidnight: Date): DailyCount[] {
-        const buckets = emptyBuckets(startAtMidnight);
-        rows.forEach((r) => {
-          const d = new Date(r.visited_at);
-          d.setHours(0, 0, 0, 0);
-          const key = d.toISOString();
-          if (key in buckets) buckets[key]++;
-        });
-        return Object.entries(buckets).map(([date, count]) => ({ date, count }));
-      }
-
-      function bucketizeVisitors(
-        rows: Row[],
-        startAtMidnight: Date
-      ): DailyCount[] {
-        const buckets = emptyBuckets(startAtMidnight);
-        const seen: Record<string, Set<string>> = {};
-        Object.keys(buckets).forEach((k) => (seen[k] = new Set()));
-        rows.forEach((r) => {
-          if (!r.visitor_id) return;
-          const d = new Date(r.visited_at);
-          d.setHours(0, 0, 0, 0);
-          const key = d.toISOString();
-          if (key in seen) seen[key].add(r.visitor_id);
-        });
-        return Object.entries(buckets).map(([date]) => ({
-          date,
-          count: seen[date].size,
-        }));
-      }
-
-      const currentRows = (currentR.data as unknown as Row[]) ?? [];
-      const compareRows = (compareR.data as unknown as Row[]) ?? [];
-
-      const currentViewsDaily = bucketizeViews(currentRows, chartStart);
-      const compareViewsDaily = bucketizeViews(compareRows, compareStart);
-      const currentVisitorsDaily = bucketizeVisitors(currentRows, chartStart);
-      const compareVisitorsDaily = bucketizeVisitors(compareRows, compareStart);
-
-      const currentVisitorSet = new Set(
-        currentRows.map((r) => r.visitor_id).filter((v): v is string => !!v)
-      );
-      const compareVisitorSet = new Set(
-        compareRows.map((r) => r.visitor_id).filter((v): v is string => !!v)
-      );
-      const returningVisitors = Array.from(currentVisitorSet).filter((id) =>
-        compareVisitorSet.has(id)
-      ).length;
-
-      const uniqueVisitorsInRange = currentVisitorSet.size;
-      const uniqueVisitorsCompare = compareVisitorSet.size;
-      const returningPct =
-        uniqueVisitorsInRange > 0
-          ? Math.round((returningVisitors / uniqueVisitorsInRange) * 100)
-          : null;
-      const viewsPerVisitor =
-        uniqueVisitorsInRange > 0
-          ? currentRows.length / uniqueVisitorsInRange
-          : 0;
-
-      setChart({
-        views: currentViewsDaily,
-        viewsCompare: compareViewsDaily,
-        visitors: currentVisitorsDaily,
-        visitorsCompare: compareVisitorsDaily,
-        uniqueVisitorsInRange,
-        uniqueVisitorsCompare,
-        returningVisitors,
-        returningPct,
-        viewsPerVisitor,
-      });
     }
     loadChart();
+    return () => {
+      cancelled = true;
+    };
   }, [range]);
 
   useEffect(() => {
     async function load() {
-      const now = Date.now();
-      const dayMs = 86400000;
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-      const yesterdayStart = new Date(todayStart.getTime() - dayMs);
-      const weekStart = new Date(now - 7 * dayMs);
-      const prevWeekStart = new Date(now - 14 * dayMs);
-      const monthStart = new Date(now - 30 * dayMs);
-
-      const countOnly = { count: "exact" as const, head: true };
-
-      const [
-        viewsTotalR,
-        viewsTodayR,
-        viewsYesterdayR,
-        viewsWeekR,
-        viewsPrevWeekR,
-        viewsMonthR,
-        pathsR,
-        visitorsR,
-        referrerR,
-        uaR,
-      ] = await Promise.all([
-        supabase.from("page_views").select("*", countOnly),
-        supabase
-          .from("page_views")
-          .select("*", countOnly)
-          .gte("visited_at", todayStart.toISOString()),
-        supabase
-          .from("page_views")
-          .select("*", countOnly)
-          .gte("visited_at", yesterdayStart.toISOString())
-          .lt("visited_at", todayStart.toISOString()),
-        supabase
-          .from("page_views")
-          .select("*", countOnly)
-          .gte("visited_at", weekStart.toISOString()),
-        supabase
-          .from("page_views")
-          .select("*", countOnly)
-          .gte("visited_at", prevWeekStart.toISOString())
-          .lt("visited_at", weekStart.toISOString()),
-        supabase
-          .from("page_views")
-          .select("*", countOnly)
-          .gte("visited_at", monthStart.toISOString()),
-        supabase
-          .from("page_views")
-          .select("path")
-          .gte("visited_at", weekStart.toISOString())
-          .limit(20000),
-        // Optional new columns — will quietly return error if missing
-        supabase
-          .from("page_views")
-          .select("visitor_id")
-          .gte("visited_at", weekStart.toISOString())
-          .limit(10000),
-        supabase
-          .from("page_views")
-          .select("referrer")
-          .gte("visited_at", weekStart.toISOString())
-          .not("referrer", "is", null)
-          .limit(10000),
-        supabase
-          .from("page_views")
-          .select("user_agent")
-          .gte("visited_at", weekStart.toISOString())
-          .not("user_agent", "is", null)
-          .limit(10000),
-      ]);
-
-      // Top paths
-      const pathCounts: Record<string, number> = {};
-      ((pathsR.data as { path: string }[]) ?? []).forEach((r) => {
-        pathCounts[r.path] = (pathCounts[r.path] ?? 0) + 1;
-      });
-      const topPathsArr = Object.entries(pathCounts)
-        .map(([path, count]) => ({ path, count }))
-        .sort((a, b) => b.count - a.count);
-
-      // Unique visitors (may be all null if column doesn't exist)
-      let uniqueVisitorsWeek: number | null = null;
-      const visitorRows =
-        (visitorsR.data as unknown as { visitor_id: string | null }[]) ?? [];
-      const visitorIds = new Set(
-        visitorRows.map((r) => r.visitor_id).filter(Boolean) as string[]
-      );
-      if (visitorIds.size > 0) {
-        uniqueVisitorsWeek = visitorIds.size;
-      }
-
-      // Referrers
-      let topReferrers: { referrer: string; count: number }[] | null = null;
-      if (
-        referrerR.data &&
-        Array.isArray(referrerR.data) &&
-        !referrerR.error
-      ) {
-        const refCounts: Record<string, number> = {};
-        (referrerR.data as unknown as { referrer: string | null }[]).forEach(
-          (r) => {
-            const host = categorizeReferrer(r.referrer);
-            refCounts[host] = (refCounts[host] ?? 0) + 1;
-          }
+      const tz = new Date().getTimezoneOffset();
+      try {
+        const data = await adminApi.get<AnalyticsData>(
+          `/api/admin/analytics?part=summary&tz=${tz}`
         );
-        topReferrers = Object.entries(refCounts)
-          .map(([referrer, count]) => ({ referrer, count }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 10);
+        setData(data);
+      } catch {
+        // Leave the loading skeletons in place on failure.
       }
-
-      // Device categorization
-      let topDevices: { category: string; count: number }[] | null = null;
-      if (uaR.data && Array.isArray(uaR.data) && !uaR.error) {
-        const deviceCounts: Record<string, number> = {};
-        (uaR.data as unknown as { user_agent: string | null }[]).forEach((r) => {
-          const cat = categorizeUA(r.user_agent ?? "");
-          deviceCounts[cat] = (deviceCounts[cat] ?? 0) + 1;
-        });
-        topDevices = Object.entries(deviceCounts)
-          .map(([category, count]) => ({ category, count }))
-          .sort((a, b) => b.count - a.count);
-      }
-
-      // Map top paths to content (join with books/lectures/khutbas by slug)
-      function pathParts(p: string): { kind: string; slug: string } | null {
-        const match = p.match(/^\/(books|lectures|khutbas)\/[^/]+\/([^/?#]+)/);
-        if (match) return { kind: match[1], slug: match[2] };
-        return null;
-      }
-
-      // Collect slugs
-      const slugsByKind: Record<string, Set<string>> = {
-        books: new Set(),
-        lectures: new Set(),
-        khutbas: new Set(),
-      };
-      topPathsArr.slice(0, 500).forEach((p) => {
-        const parts = pathParts(p.path);
-        if (parts) slugsByKind[parts.kind].add(parts.slug);
-      });
-
-      type ContentRow = { slug: string; title: string; author?: string; speaker?: string };
-
-      const [booksRes, lecturesRes, khutbasRes] = await Promise.all([
-        slugsByKind.books.size > 0
-          ? supabase
-              .from("books")
-              .select("slug,title,author")
-              .in("slug", Array.from(slugsByKind.books))
-          : Promise.resolve({ data: [] as ContentRow[], error: null }),
-        slugsByKind.lectures.size > 0
-          ? supabase
-              .from("lectures")
-              .select("slug,title,speaker")
-              .in("slug", Array.from(slugsByKind.lectures))
-          : Promise.resolve({ data: [] as ContentRow[], error: null }),
-        slugsByKind.khutbas.size > 0
-          ? supabase
-              .from("khutbas")
-              .select("slug,title,speaker")
-              .in("slug", Array.from(slugsByKind.khutbas))
-          : Promise.resolve({ data: [] as ContentRow[], error: null }),
-      ]);
-
-      const slugLookup: Record<string, Record<string, ContentRow>> = {
-        books: {},
-        lectures: {},
-        khutbas: {},
-      };
-      ((booksRes.data as ContentRow[]) ?? []).forEach((r) => {
-        slugLookup.books[r.slug] = r;
-      });
-      ((lecturesRes.data as ContentRow[]) ?? []).forEach((r) => {
-        slugLookup.lectures[r.slug] = r;
-      });
-      ((khutbasRes.data as ContentRow[]) ?? []).forEach((r) => {
-        slugLookup.khutbas[r.slug] = r;
-      });
-
-      function enrich(kind: "books" | "lectures" | "khutbas"): ContentHit[] {
-        return topPathsArr
-          .map((p) => {
-            const parts = pathParts(p.path);
-            if (!parts || parts.kind !== kind) return null;
-            const row = slugLookup[kind][parts.slug];
-            return {
-              path: p.path,
-              count: p.count,
-              title: row?.title ?? parts.slug,
-              subtitle: row?.author ?? row?.speaker ?? null,
-              href: p.path,
-              kind: kind === "books" ? "book" : (kind === "lectures" ? "lecture" : "khutba"),
-            } as ContentHit;
-          })
-          .filter((x): x is ContentHit => x !== null)
-          .slice(0, 8);
-      }
-
-      setData({
-        viewsTotal: viewsTotalR.count ?? 0,
-        viewsToday: viewsTodayR.count ?? 0,
-        viewsYesterday: viewsYesterdayR.count ?? 0,
-        viewsWeek: viewsWeekR.count ?? 0,
-        viewsPrevWeek: viewsPrevWeekR.count ?? 0,
-        viewsMonth: viewsMonthR.count ?? 0,
-        uniqueVisitorsWeek,
-        topPaths: topPathsArr.slice(0, 12),
-        topBooks: enrich("books"),
-        topLectures: enrich("lectures"),
-        topKhutbas: enrich("khutbas"),
-        topReferrers,
-        topDevices,
-      });
     }
     load();
   }, []);

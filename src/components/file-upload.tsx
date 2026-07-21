@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Upload, X, FileText, Image as ImageIcon } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 
 type FileUploadProps = {
   bucket: string;
@@ -26,38 +26,16 @@ export function FileUpload({
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  function sanitizeName(name: string) {
-    return name
-      .replace(/[:#?&%'`''\u2018\u2019\u2013\u2014\u201C\u201D,;!@^~()[\]{}|\\]/g, "")
-      .replace(/\s+/g, "_");
-  }
-
   async function handleFile(file: File) {
     setError("");
     setUploading(true);
 
-    const sanitized = sanitizeName(file.name);
-    const path = `${folder}/${Date.now()}_${sanitized}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(path, file, { contentType: file.type, upsert: true });
-
-    if (uploadError) {
-      const msg = uploadError.message;
-      if (/row-level security/i.test(msg)) {
-        setError(
-          `Storage RLS blocked upload to "${bucket}". Run supabase-migration-storage-policies.sql in the Supabase SQL editor.`
-        );
-      } else {
-        setError(msg);
-      }
-      setUploading(false);
-      return;
+    try {
+      const { url } = await adminApi.upload(bucket as "covers" | "books", folder, file);
+      onUpload(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
     }
-
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    onUpload(data.publicUrl);
     setUploading(false);
   }
 

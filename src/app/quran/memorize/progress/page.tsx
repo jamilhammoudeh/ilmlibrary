@@ -20,7 +20,7 @@ export default function ProgressPage() {
 
   useEffect(() => {
     fetch("https://api.quran.com/api/v4/chapters?language=en")
-      .then((r) => r.json())
+      .then((r) => r.json() as Promise<{ chapters: Chapter[] }>)
       .then((d) => {
         setChapters(d.chapters);
         setLoading(false);

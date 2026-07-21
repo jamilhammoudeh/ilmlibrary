@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import {
   BookOpen,
   Mic,
@@ -84,172 +84,15 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function loadStats() {
-      const now = Date.now();
-      const dayMs = 86400000;
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-      const yesterdayStart = new Date(todayStart.getTime() - dayMs);
-      const weekStart = new Date(now - 7 * dayMs);
-      const prevWeekStart = new Date(now - 14 * dayMs);
-
-      const countOnly = { count: "exact" as const, head: true };
-
-      const [
-        booksR,
-        lecturesR,
-        khutbasR,
-        duasR,
-        wisdomR,
-        categoriesR,
-        viewsTotalR,
-        viewsTodayR,
-        viewsYesterdayR,
-        viewsWeekR,
-        viewsPrevWeekR,
-        viewsForChartR,
-        topPagesR,
-        recentBooksR,
-        recentLecturesR,
-        recentKhutbasR,
-        recentDuasR,
-        recentWisdomR,
-      ] = await Promise.all([
-        supabase.from("books").select("*", countOnly),
-        supabase.from("lectures").select("*", countOnly),
-        supabase.from("khutbas").select("*", countOnly),
-        supabase.from("duas").select("*", countOnly),
-        supabase.from("wisdom").select("*", countOnly),
-        supabase.from("categories").select("*", countOnly),
-        supabase.from("page_views").select("*", countOnly),
-        supabase
-          .from("page_views")
-          .select("*", countOnly)
-          .gte("visited_at", todayStart.toISOString()),
-        supabase
-          .from("page_views")
-          .select("*", countOnly)
-          .gte("visited_at", yesterdayStart.toISOString())
-          .lt("visited_at", todayStart.toISOString()),
-        supabase
-          .from("page_views")
-          .select("*", countOnly)
-          .gte("visited_at", weekStart.toISOString()),
-        supabase
-          .from("page_views")
-          .select("*", countOnly)
-          .gte("visited_at", prevWeekStart.toISOString())
-          .lt("visited_at", weekStart.toISOString()),
-        supabase
-          .from("page_views")
-          .select("visited_at")
-          .gte("visited_at", weekStart.toISOString())
-          .limit(5000),
-        supabase
-          .from("page_views")
-          .select("path")
-          .gte("visited_at", weekStart.toISOString())
-          .limit(5000),
-        supabase.from("books").select("id,title,author,created_at,slug").order("created_at", { ascending: false }).limit(4),
-        supabase.from("lectures").select("id,title,speaker,created_at,slug").order("created_at", { ascending: false }).limit(4),
-        supabase.from("khutbas").select("id,title,speaker,created_at,slug").order("created_at", { ascending: false }).limit(4),
-        supabase.from("duas").select("id,title,translation,created_at").order("created_at", { ascending: false }).limit(3),
-        supabase.from("wisdom").select("id,quote_english,attribution,created_at").order("created_at", { ascending: false }).limit(3),
-      ]);
-
-      // Daily buckets for the last 7 days
-      const buckets: Record<string, number> = {};
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(now - i * dayMs);
-        d.setHours(0, 0, 0, 0);
-        buckets[d.toISOString()] = 0;
+      // All aggregation happens server-side; tz keeps "today" buckets on the
+      // admin's local calendar day.
+      const tz = new Date().getTimezoneOffset();
+      try {
+        const data = await adminApi.get<Stats>(`/api/admin/stats?tz=${tz}`);
+        setStats(data);
+      } catch {
+        // Leave the loading skeletons in place on failure.
       }
-      (viewsForChartR.data ?? []).forEach((r: { visited_at: string }) => {
-        const d = new Date(r.visited_at);
-        d.setHours(0, 0, 0, 0);
-        const key = d.toISOString();
-        if (key in buckets) buckets[key]++;
-      });
-      const daily: DailyCount[] = Object.entries(buckets).map(([date, count]) => ({
-        date,
-        count,
-      }));
-
-      // Top paths
-      const pathCounts: Record<string, number> = {};
-      (topPagesR.data ?? []).forEach((r: { path: string }) => {
-        pathCounts[r.path] = (pathCounts[r.path] ?? 0) + 1;
-      });
-      const topPaths = Object.entries(pathCounts)
-        .map(([path, count]) => ({ path, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 6);
-
-      // Recent items
-      type BookRow = { id: string; title: string; author: string; created_at: string; slug: string };
-      type LectureRow = { id: string; title: string; speaker: string; created_at: string; slug: string };
-      type DuaRow = { id: string; title: string | null; translation: string; created_at: string };
-      type WisdomRow = { id: string; quote_english: string; attribution: string; created_at: string };
-
-      const recent: RecentItem[] = [
-        ...((recentBooksR.data as BookRow[]) ?? []).map((b) => ({
-          id: b.id,
-          title: b.title,
-          subtitle: b.author,
-          created_at: b.created_at,
-          type: "book" as const,
-          href: `/books/${b.slug}`,
-        })),
-        ...((recentLecturesR.data as LectureRow[]) ?? []).map((l) => ({
-          id: l.id,
-          title: l.title,
-          subtitle: l.speaker,
-          created_at: l.created_at,
-          type: "lecture" as const,
-          href: `/lectures/${l.slug}`,
-        })),
-        ...((recentKhutbasR.data as LectureRow[]) ?? []).map((k) => ({
-          id: k.id,
-          title: k.title,
-          subtitle: k.speaker,
-          created_at: k.created_at,
-          type: "khutba" as const,
-          href: `/khutbas/${k.slug}`,
-        })),
-        ...((recentDuasR.data as DuaRow[]) ?? []).map((d) => ({
-          id: d.id,
-          title: d.title || d.translation.slice(0, 60),
-          created_at: d.created_at,
-          type: "dua" as const,
-          href: "/duas",
-        })),
-        ...((recentWisdomR.data as WisdomRow[]) ?? []).map((w) => ({
-          id: w.id,
-          title: w.quote_english.slice(0, 80) + (w.quote_english.length > 80 ? "…" : ""),
-          subtitle: w.attribution,
-          created_at: w.created_at,
-          type: "wisdom" as const,
-          href: "/wisdom",
-        })),
-      ]
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        .slice(0, 8);
-
-      setStats({
-        books: booksR.count ?? 0,
-        lectures: lecturesR.count ?? 0,
-        khutbas: khutbasR.count ?? 0,
-        duas: duasR.count ?? 0,
-        wisdom: wisdomR.count ?? 0,
-        categories: categoriesR.count ?? 0,
-        viewsTotal: viewsTotalR.count ?? 0,
-        viewsToday: viewsTodayR.count ?? 0,
-        viewsYesterday: viewsYesterdayR.count ?? 0,
-        viewsWeek: viewsWeekR.count ?? 0,
-        viewsPrevWeek: viewsPrevWeekR.count ?? 0,
-        daily,
-        topPaths,
-        recent,
-      });
     }
     loadStats();
   }, []);

@@ -6,7 +6,6 @@ import { MainWrapper } from "@/components/main-wrapper";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { PageViewTracker } from "@/components/page-view-tracker";
-import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -130,7 +129,6 @@ export default function RootLayout({
         <ScrollToTop />
         <KeyboardShortcuts />
         <PageViewTracker />
-        <Analytics />
       </body>
     </html>
   );

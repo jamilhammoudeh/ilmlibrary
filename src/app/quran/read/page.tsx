@@ -14,7 +14,7 @@ async function getChapters(): Promise<Chapter[]> {
     "https://api.quran.com/api/v4/chapters?language=en",
     { next: { revalidate: 86400 } }
   );
-  const data = await res.json();
+  const data = (await res.json()) as { chapters: Chapter[] };
   return data.chapters;
 }
 

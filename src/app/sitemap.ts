@@ -1,6 +1,8 @@
-import { supabase } from "@/lib/supabase";
+import { getAllBookSlugs, getCategories } from "@/lib/queries";
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
+
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
@@ -20,11 +22,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Book categories
-  const { data: bookCats } = await supabase
-    .from("categories")
-    .select("slug")
-    .eq("content_type", "book");
-  const catPages = (bookCats ?? []).map((c) => ({
+  const bookCats = await getCategories({ contentType: "book", includeHidden: true });
+  const catPages = bookCats.map((c) => ({
     url: `${baseUrl}/books/${c.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
@@ -32,12 +31,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Individual books
-  const { data: books } = await supabase
-    .from("books")
-    .select("slug, category_id, created_at, categories(slug)")
-    .limit(2000);
-  const bookPages = (books ?? []).map((b: any) => ({
-    url: `${baseUrl}/books/${b.categories?.slug ?? "uncategorized"}/${b.slug}`,
+  const books = await getAllBookSlugs(2000);
+  const bookPages = books.map((b) => ({
+    url: `${baseUrl}/books/${b.category_slug ?? "uncategorized"}/${b.slug}`,
     lastModified: new Date(b.created_at),
     changeFrequency: "monthly" as const,
     priority: 0.6,
@@ -52,11 +48,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Wisdom categories
-  const { data: wisdomCats } = await supabase
-    .from("categories")
-    .select("slug")
-    .eq("content_type", "wisdom");
-  const wisdomPages = (wisdomCats ?? []).map((c) => ({
+  const wisdomCats = await getCategories({ contentType: "wisdom", includeHidden: true });
+  const wisdomPages = wisdomCats.map((c) => ({
     url: `${baseUrl}/wisdom/${c.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,

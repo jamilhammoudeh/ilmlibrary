@@ -71,7 +71,7 @@ export default function PracticePage() {
 
   useEffect(() => {
     fetch("https://api.quran.com/api/v4/chapters")
-      .then((r) => r.json())
+      .then((r) => r.json() as Promise<{ chapters?: Chapter[] }>)
       .then((d) => setChapters(d.chapters ?? []))
       .catch(() => setChapters([]));
   }, []);
@@ -87,7 +87,7 @@ export default function PracticePage() {
       const vRes = await fetch(
         `https://api.quran.com/api/v4/verses/by_chapter/${id}?language=en&fields=text_uthmani&translations=22&per_page=300`
       );
-      const vData = await vRes.json();
+      const vData = (await vRes.json()) as { verses?: Verse[] };
       setVerses(vData.verses ?? []);
       setLoading(false);
     }

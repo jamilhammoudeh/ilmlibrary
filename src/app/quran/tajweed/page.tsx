@@ -24,7 +24,9 @@ import {
   Eye,
   Compass,
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { getDb } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
 
 type TajweedBook = {
   title: string;
@@ -35,23 +37,43 @@ type TajweedBook = {
 };
 
 async function getTajweedBooks(): Promise<TajweedBook[]> {
-  const { data } = await supabase
-    .from("books")
-    .select("title, slug, author, cover_url, category:categories(slug)")
-    .or(
-      [
-        "title.ilike.%tajweed%",
-        "title.ilike.%tajwid%",
-        "title.ilike.%qaidah%",
-        "title.ilike.%qaaidah%",
-        "title.ilike.%qa'idah%",
-        "title.ilike.%noorani%",
-        "title.ilike.%noraniah%",
-      ].join(",")
+  // No shared helper covers a multi-pattern title search joined with the
+  // category slug, so this page queries D1 directly. Patterns are static.
+  const patterns = [
+    "%tajweed%",
+    "%tajwid%",
+    "%qaidah%",
+    "%qaaidah%",
+    "%qa'idah%",
+    "%noorani%",
+    "%noraniah%",
+  ];
+  const db = await getDb();
+  const { results } = await db
+    .prepare(
+      `SELECT b.title, b.slug, b.author, b.cover_url, c.slug AS category_slug
+       FROM books b LEFT JOIN categories c ON c.id = b.category_id
+       WHERE ${patterns.map(() => "b.title LIKE ?").join(" OR ")}
+       ORDER BY b.title COLLATE NOCASE`
     )
-    .order("title");
+    .bind(...patterns)
+    .all<{
+      title: string;
+      slug: string;
+      author: string;
+      cover_url: string | null;
+      category_slug: string | null;
+    }>();
 
-  return ((data ?? []) as unknown as TajweedBook[]).filter((b) => b.category?.slug);
+  return results
+    .filter((b) => b.category_slug)
+    .map((b) => ({
+      title: b.title,
+      slug: b.slug,
+      author: b.author,
+      cover_url: b.cover_url,
+      category: { slug: b.category_slug! },
+    }));
 }
 
 const motivation = [

@@ -41,3 +41,13 @@ yarn-error.log*
 next-env.d.ts
 .claude/
 scripts/
+!scripts/import/
+scripts/import/state/
+
+# cloudflare / opennext
+.open-next/
+.wrangler/
+cloudflare-env.d.ts
+
+# migration artifacts (supabase exports, staging data)
+migration-data/

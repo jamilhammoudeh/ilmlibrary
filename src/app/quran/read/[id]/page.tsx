@@ -81,7 +81,7 @@ export default function SurahPage({
 
   useEffect(() => {
     fetch("https://api.quran.com/api/v4/chapters")
-      .then((r) => r.json())
+      .then((r) => r.json() as Promise<{ chapters?: { id: number; name_simple: string; name_arabic: string }[] }>)
       .then((d) =>
         setAllChapters(
           (d.chapters ?? []).map(
@@ -109,9 +109,9 @@ export default function SurahPage({
           `https://api.quran.com/api/v4/verses/by_chapter/${surahId}?language=en&fields=text_uthmani,text_uthmani_tajweed,page_number,juz_number&translations=22&word_fields=text_uthmani,translation&words=true&per_page=300`
         ),
       ]);
-      const chData = await chRes.json();
-      const vData = await vRes.json();
-      setChapter(chData.chapter);
+      const chData = (await chRes.json()) as { chapter?: Chapter };
+      const vData = (await vRes.json()) as { verses: Verse[] };
+      setChapter(chData.chapter ?? null);
       setVerses(vData.verses);
       setLoading(false);
       if (chData.chapter) markSurahRead(chData.chapter.id);
@@ -262,7 +262,7 @@ export default function SurahPage({
       const res = await fetch(
         `https://api.qurancdn.com/api/v4/tafsirs/en-tafisr-ibn-kathir/by_ayah/${surahId}:${verseNumber}`
       );
-      const data = await res.json();
+      const data = (await res.json()) as { tafsir?: { text?: string } };
       const text = data.tafsir?.text?.replace(/<[^>]*>/g, "") || "Tafsir not available.";
       setTafsirs((prev) => ({ ...prev, [verseNumber]: text }));
       setOpenTafsir(verseNumber);

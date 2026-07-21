@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ContentHeader } from "@/components/content-header";
-import { supabase } from "@/lib/supabase";
+import { getCategories as getCategoriesQuery } from "@/lib/queries";
 import {
   Mic,
   Users,
@@ -15,13 +15,14 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 async function getCategories() {
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("content_type", "lecture")
-    .order("name");
-  return data ?? [];
+  return getCategoriesQuery({
+    contentType: "lecture",
+    includeHidden: true,
+    orderBy: "name",
+  });
 }
 
 type CategoryInfo = {
@@ -30,7 +31,7 @@ type CategoryInfo = {
   externalLabel?: string;
 };
 
-// Enriches the Supabase categories with descriptions and source links.
+// Enriches the DB categories with descriptions and source links.
 // Keyed by normalized category name (lowercased).
 const categoryInfo: Record<string, CategoryInfo> = {
   "al madrasatu al umariyyah": {

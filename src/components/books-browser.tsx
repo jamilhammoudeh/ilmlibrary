@@ -4,8 +4,8 @@ import { Search, X, Loader2, BookOpen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { EmptyState } from "@/components/empty-state";
+import type { Book, Category as CategoryRow } from "@/types/database";
 
 type Category = {
   id: string;
@@ -43,34 +43,44 @@ export function BooksBrowser({ categories }: { categories: Category[] }) {
     setLoading(true);
 
     const timer = setTimeout(async () => {
-      const like = `%${trimmed}%`;
-      const [booksRes, catsRes] = await Promise.all([
-        supabase
-          .from("books")
-          .select("id, title, slug, author, cover_url, category_id")
-          .or(`title.ilike.${like},author.ilike.${like}`)
-          .order("title")
-          .limit(30),
-        supabase.from("categories").select("id, slug"),
-      ]);
+      try {
+        const [booksRes, catsRes] = await Promise.all([
+          fetch(
+            `/api/books?q=${encodeURIComponent(trimmed)}&sort=title&limit=30`
+          ).then((r) =>
+            r.ok
+              ? (r.json() as Promise<{ rows: Book[] }>)
+              : { rows: [] as Book[] }
+          ),
+          fetch("/api/categories?type=book").then((r) =>
+            r.ok
+              ? (r.json() as Promise<{ rows: CategoryRow[] }>)
+              : { rows: [] as CategoryRow[] }
+          ),
+        ]);
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      const catMap = new Map<string, string>();
-      for (const c of catsRes.data ?? []) catMap.set(c.id, c.slug);
+        const catMap = new Map<string, string>();
+        for (const c of catsRes.rows ?? []) catMap.set(c.id, c.slug);
 
-      const merged: BookResult[] = (booksRes.data ?? []).map((b) => ({
-        id: b.id,
-        title: b.title,
-        slug: b.slug,
-        author: b.author,
-        cover_url: b.cover_url,
-        categorySlug:
-          (b.category_id && catMap.get(b.category_id)) ?? "uncategorized",
-      }));
+        const merged: BookResult[] = (booksRes.rows ?? []).map((b) => ({
+          id: b.id,
+          title: b.title,
+          slug: b.slug,
+          author: b.author,
+          cover_url: b.cover_url,
+          categorySlug:
+            (b.category_id && catMap.get(b.category_id)) ?? "uncategorized",
+        }));
 
-      setResults(merged);
-      setLoading(false);
+        setResults(merged);
+        setLoading(false);
+      } catch {
+        if (cancelled) return;
+        setResults([]);
+        setLoading(false);
+      }
     }, 200);
 
     return () => {

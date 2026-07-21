@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { ContentHeader } from "@/components/content-header";
-import { supabase } from "@/lib/supabase";
+import { getCategories as getCategoriesQuery } from "@/lib/queries";
+
+export const dynamic = "force-dynamic";
 
 async function getCategories() {
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("content_type", "wisdom")
-    .order("name");
-  return data ?? [];
+  return getCategoriesQuery({
+    contentType: "wisdom",
+    includeHidden: true,
+    orderBy: "name",
+  });
 }
 
 // Full roster of attribution pills, shown in this order regardless of DB state.

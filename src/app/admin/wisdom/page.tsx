@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import type { Wisdom } from "@/types/database";
 import { Plus, Pencil, Trash2, Search, Quote, User } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
@@ -10,7 +10,6 @@ import { Modal } from "@/components/admin/modal";
 import { Field, PrimaryButton, GhostButton } from "@/components/admin/form-fields";
 import { useToast } from "@/components/admin/toast";
 import { useUrlString, useUrlUpdater } from "@/hooks/use-url-state";
-import { logAudit } from "@/lib/audit";
 
 export default function AdminWisdomPage() {
   return (
@@ -55,12 +54,15 @@ function WisdomAdmin() {
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase
-      .from("wisdom")
-      .select("*")
-      .order("attribution")
-      .limit(500);
-    setItems(data ?? []);
+    try {
+      const { rows } = await adminApi.list<Wisdom>("wisdom", {
+        orderBy: [{ col: "attribution" }],
+        limit: 500,
+      });
+      setItems(rows);
+    } catch {
+      setItems([]);
+    }
     setLoading(false);
   }
 
@@ -78,25 +80,18 @@ function WisdomAdmin() {
       source: editing.source?.trim() || null,
       category_id: null,
     };
-    const { data: saved, error } = isNew
-      ? await supabase.from("wisdom").insert(d).select("id").single()
-      : await supabase
-          .from("wisdom")
-          .update(d)
-          .eq("id", editing.id!)
-          .select("id")
-          .single();
-    setSaving(false);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      if (isNew) {
+        await adminApi.insert("wisdom", d);
+      } else {
+        await adminApi.update("wisdom", editing.id!, d);
+      }
+    } catch (err) {
+      setSaving(false);
+      notify(err instanceof Error ? err.message : "Save failed", "error");
       return;
     }
-    logAudit({
-      action: isNew ? "create" : "update",
-      resourceType: "wisdom",
-      resourceId: (saved as { id?: string } | null)?.id ?? editing.id ?? null,
-      resourceTitle: d.attribution,
-    });
+    setSaving(false);
     notify(isNew ? "Quote added" : "Changes saved");
     setEditing(null);
     setIsNew(false);
@@ -105,18 +100,12 @@ function WisdomAdmin() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this quote? This cannot be undone.")) return;
-    const target = items.find((w) => w.id === id);
-    const { error } = await supabase.from("wisdom").delete().eq("id", id);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.remove("wisdom", id);
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Delete failed", "error");
       return;
     }
-    logAudit({
-      action: "delete",
-      resourceType: "wisdom",
-      resourceId: id,
-      resourceTitle: target?.attribution ?? null,
-    });
     notify("Quote deleted");
     load();
   }

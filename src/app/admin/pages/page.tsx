@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import type { Page } from "@/types/database";
 import {
   Plus,
@@ -26,7 +26,6 @@ import { Field, SelectField, PrimaryButton, GhostButton } from "@/components/adm
 import { useToast } from "@/components/admin/toast";
 import { FileUpload } from "@/components/file-upload";
 import { useUrlString, useUrlUpdater } from "@/hooks/use-url-state";
-import { logAudit } from "@/lib/audit";
 
 export default function AdminPagesPage() {
   return (
@@ -56,12 +55,14 @@ function PagesAdmin() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("pages")
-      .select("*")
-      .order("sort_order")
-      .order("title");
-    setPages(data ?? []);
+    try {
+      const { rows } = await adminApi.list<Page>("pages", {
+        orderBy: [{ col: "sort_order" }, { col: "title" }],
+      });
+      setPages(rows);
+    } catch {
+      setPages([]);
+    }
     setLoading(false);
   }, []);
 
@@ -118,28 +119,19 @@ function PagesAdmin() {
       hidden: editing.hidden ?? false,
     };
 
-    const { data: saved, error } = isNew
-      ? await supabase.from("pages").insert(pageData).select("id").single()
-      : await supabase
-          .from("pages")
-          .update(pageData)
-          .eq("id", editing.id!)
-          .select("id")
-          .single();
-
-    setSaving(false);
-
-    if (error) {
-      notify(error.message, "error");
+    try {
+      if (isNew) {
+        await adminApi.insert("pages", pageData);
+      } else {
+        await adminApi.update("pages", editing.id!, pageData);
+      }
+    } catch (err) {
+      setSaving(false);
+      notify(err instanceof Error ? err.message : "Save failed", "error");
       return;
     }
 
-    logAudit({
-      action: isNew ? "create" : "update",
-      resourceType: "page",
-      resourceId: (saved as { id?: string } | null)?.id ?? editing.id ?? null,
-      resourceTitle: pageData.title,
-    });
+    setSaving(false);
 
     notify(isNew ? "Page created" : "Changes saved");
     setEditing(null);
@@ -154,29 +146,22 @@ function PagesAdmin() {
       ? `Delete "${page.title}" and unparent its ${childCount} sub-page${childCount === 1 ? "" : "s"}?`
       : `Delete "${page.title}"? This cannot be undone.`;
     if (!confirm(msg)) return;
-    const { error } = await supabase.from("pages").delete().eq("id", page.id);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.remove("pages", page.id);
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Delete failed", "error");
       return;
     }
-    logAudit({
-      action: "delete",
-      resourceType: "page",
-      resourceId: page.id,
-      resourceTitle: page.title,
-    });
     notify("Page deleted");
     load();
     window.dispatchEvent(new CustomEvent("admin:pages:changed"));
   }
 
   async function toggleHidden(page: Page) {
-    const { error } = await supabase
-      .from("pages")
-      .update({ hidden: !page.hidden })
-      .eq("id", page.id);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.update("pages", page.id, { hidden: !page.hidden });
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Update failed", "error");
       return;
     }
     notify(!page.hidden ? "Page hidden" : "Page visible");
@@ -192,10 +177,14 @@ function PagesAdmin() {
     const swapIdx = idx + direction;
     if (swapIdx < 0 || swapIdx >= siblings.length) return;
     const other = siblings[swapIdx];
-    await Promise.all([
-      supabase.from("pages").update({ sort_order: other.sort_order }).eq("id", page.id),
-      supabase.from("pages").update({ sort_order: page.sort_order }).eq("id", other.id),
-    ]);
+    try {
+      await Promise.all([
+        adminApi.update("pages", page.id, { sort_order: other.sort_order }),
+        adminApi.update("pages", other.id, { sort_order: page.sort_order }),
+      ]);
+    } catch {
+      // Reload below reflects whatever persisted.
+    }
     load();
     window.dispatchEvent(new CustomEvent("admin:pages:changed"));
   }

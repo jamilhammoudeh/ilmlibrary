@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import {
   BookOpen,
   Mic,
@@ -110,22 +110,23 @@ export default function AuditLogPage() {
   useEffect(() => {
     async function load() {
       setLoading(true);
-      let query = supabase
-        .from("audit_log")
-        .select("*", { count: "exact" })
-        .order("created_at", { ascending: false })
-        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-      if (resourceFilter !== "all") {
-        query = query.eq("resource_type", resourceFilter);
-      }
-      if (actionFilter !== "all") {
-        query = query.eq("action", actionFilter);
-      }
-      const { data, error, count } = await query;
-      if (!error) {
-        setEntries((data as unknown as AuditEntry[]) ?? []);
+      const eq: Record<string, string> = {};
+      if (resourceFilter !== "all") eq.resource_type = resourceFilter;
+      if (actionFilter !== "all") eq.action = actionFilter;
+      try {
+        // details arrives as a parsed object (JSON coercion happens server-side)
+        const { rows, count } = await adminApi.list<AuditEntry>("audit_log", {
+          ...(Object.keys(eq).length > 0 ? { eq } : {}),
+          orderBy: [{ col: "created_at", dir: "desc" }],
+          limit: PAGE_SIZE,
+          offset: page * PAGE_SIZE,
+          count: true,
+        });
+        setEntries(rows);
         setTotal(count ?? null);
-        setHasMore(((data?.length ?? 0) === PAGE_SIZE));
+        setHasMore(rows.length === PAGE_SIZE);
+      } catch {
+        // Keep the current entries on failure.
       }
       setLoading(false);
     }

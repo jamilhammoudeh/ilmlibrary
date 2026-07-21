@@ -15,7 +15,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { GlyphText } from "@/components/glyph-text";
 
 type ResultType = "book" | "lecture" | "khutba" | "dua" | "wisdom" | "guide";
@@ -36,6 +35,27 @@ const TYPE_ICON: Record<ResultType, React.ComponentType<{ size?: number }>> = {
   dua: HandHeart,
   wisdom: Lightbulb,
   guide: FileText,
+};
+
+type SearchResponse = {
+  books: {
+    id: string;
+    title: string;
+    slug: string;
+    author: string;
+    cover_url: string | null;
+    category_id: string | null;
+  }[];
+  lectures: { id: string; title: string; slug: string; speaker: string }[];
+  khutbas: { id: string; title: string; slug: string; speaker: string }[];
+  duas: {
+    id: string;
+    title: string | null;
+    translation: string;
+    source: string | null;
+  }[];
+  wisdom: { id: string; quote_english: string; attribution: string }[];
+  guides: { id: string; title: string; slug: string }[];
 };
 
 export function SearchBarLive({
@@ -81,97 +101,77 @@ export function SearchBarLive({
     let cancelled = false;
     setLoading(true);
     const timer = setTimeout(async () => {
-      const like = `%${q}%`;
-
-      const [books, lectures, khutbas, duas, wisdom, guides, cats] =
-        await Promise.all([
-          supabase
-            .from("books")
-            .select("id, title, slug, author, category_id, cover_url")
-            .or(`title.ilike.${like},author.ilike.${like}`)
-            .limit(4),
-          supabase
-            .from("lectures")
-            .select("id, title, slug, speaker")
-            .or(`title.ilike.${like},speaker.ilike.${like}`)
-            .limit(3),
-          supabase
-            .from("khutbas")
-            .select("id, title, slug, speaker")
-            .or(`title.ilike.${like},speaker.ilike.${like}`)
-            .limit(3),
-          supabase
-            .from("duas")
-            .select("id, title, translation, source")
-            .or(`title.ilike.${like},translation.ilike.${like}`)
-            .limit(3),
-          supabase
-            .from("wisdom")
-            .select("id, quote_english, attribution")
-            .or(`quote_english.ilike.${like},attribution.ilike.${like}`)
-            .limit(3),
-          supabase
-            .from("guides")
-            .select("id, title, slug")
-            .ilike("title", like)
-            .limit(3),
-          supabase.from("categories").select("id, slug"),
+      try {
+        const [search, cats] = await Promise.all([
+          fetch(`/api/search?q=${encodeURIComponent(q)}&per=4`).then((r) =>
+            r.ok ? (r.json() as Promise<SearchResponse>) : null
+          ),
+          fetch("/api/categories?type=book").then((r) =>
+            r.ok
+              ? (r.json() as Promise<{ rows: { id: string; slug: string }[] }>)
+              : null
+          ),
         ]);
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      const catMap = new Map<string, string>();
-      for (const c of cats.data ?? []) catMap.set(c.id, c.slug);
+        const catMap = new Map<string, string>();
+        for (const c of cats?.rows ?? []) catMap.set(c.id, c.slug);
 
-      const merged: Result[] = [
-        ...(books.data ?? []).map((b) => ({
-          id: `b-${b.id}`,
-          type: "book" as const,
-          title: b.title,
-          subtitle: b.author,
-          href: `/books/${
-            (b.category_id && catMap.get(b.category_id)) ?? "uncategorized"
-          }/${b.slug}`,
-          thumbnail: b.cover_url,
-        })),
-        ...(lectures.data ?? []).map((l) => ({
-          id: `l-${l.id}`,
-          type: "lecture" as const,
-          title: l.title,
-          subtitle: l.speaker,
-          href: `/lectures/${l.slug}`,
-        })),
-        ...(khutbas.data ?? []).map((k) => ({
-          id: `k-${k.id}`,
-          type: "khutba" as const,
-          title: k.title,
-          subtitle: k.speaker,
-          href: `/khutbas/${k.slug}`,
-        })),
-        ...(duas.data ?? []).map((d) => ({
-          id: `d-${d.id}`,
-          type: "dua" as const,
-          title: d.title ?? d.translation.slice(0, 80),
-          subtitle: d.source ?? undefined,
-          href: "/duas",
-        })),
-        ...(wisdom.data ?? []).map((w) => ({
-          id: `w-${w.id}`,
-          type: "wisdom" as const,
-          title: w.quote_english.slice(0, 100),
-          subtitle: w.attribution,
-          href: "/wisdom",
-        })),
-        ...(guides.data ?? []).map((g) => ({
-          id: `g-${g.id}`,
-          type: "guide" as const,
-          title: g.title,
-          href: `/guides/${g.slug}`,
-        })),
-      ];
+        const merged: Result[] = [
+          ...(search?.books ?? []).map((b) => ({
+            id: `b-${b.id}`,
+            type: "book" as const,
+            title: b.title,
+            subtitle: b.author,
+            href: `/books/${
+              (b.category_id && catMap.get(b.category_id)) ?? "uncategorized"
+            }/${b.slug}`,
+            thumbnail: b.cover_url,
+          })),
+          ...(search?.lectures ?? []).slice(0, 3).map((l) => ({
+            id: `l-${l.id}`,
+            type: "lecture" as const,
+            title: l.title,
+            subtitle: l.speaker,
+            href: `/lectures/${l.slug}`,
+          })),
+          ...(search?.khutbas ?? []).slice(0, 3).map((k) => ({
+            id: `k-${k.id}`,
+            type: "khutba" as const,
+            title: k.title,
+            subtitle: k.speaker,
+            href: `/khutbas/${k.slug}`,
+          })),
+          ...(search?.duas ?? []).slice(0, 3).map((d) => ({
+            id: `d-${d.id}`,
+            type: "dua" as const,
+            title: d.title ?? d.translation.slice(0, 80),
+            subtitle: d.source ?? undefined,
+            href: "/duas",
+          })),
+          ...(search?.wisdom ?? []).slice(0, 3).map((w) => ({
+            id: `w-${w.id}`,
+            type: "wisdom" as const,
+            title: w.quote_english.slice(0, 100),
+            subtitle: w.attribution,
+            href: "/wisdom",
+          })),
+          ...(search?.guides ?? []).slice(0, 3).map((g) => ({
+            id: `g-${g.id}`,
+            type: "guide" as const,
+            title: g.title,
+            href: `/guides/${g.slug}`,
+          })),
+        ];
 
-      setResults(merged);
-      setLoading(false);
+        setResults(merged);
+        setLoading(false);
+      } catch {
+        if (cancelled) return;
+        setResults([]);
+        setLoading(false);
+      }
     }, 200);
 
     return () => {

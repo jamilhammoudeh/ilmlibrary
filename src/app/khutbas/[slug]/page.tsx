@@ -2,25 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Play, BookMarked } from "lucide-react";
 import { ContentHeader } from "@/components/content-header";
-import { supabase } from "@/lib/supabase";
+import { getCategoryBySlug, getKhutbasByCategory } from "@/lib/queries";
+
+export const dynamic = "force-dynamic";
 
 async function getCategory(slug: string) {
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("slug", slug)
-    .eq("content_type", "khutba")
-    .single();
-  return data;
+  return getCategoryBySlug(slug, "khutba");
 }
 
 async function getKhutbas(categoryId: string) {
-  const { data } = await supabase
-    .from("khutbas")
-    .select("*")
-    .eq("category_id", categoryId)
-    .order("title");
-  return data ?? [];
+  return getKhutbasByCategory(categoryId);
 }
 
 export async function generateMetadata({

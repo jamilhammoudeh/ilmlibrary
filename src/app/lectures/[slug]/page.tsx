@@ -2,25 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Play, Mic } from "lucide-react";
 import { ContentHeader } from "@/components/content-header";
-import { supabase } from "@/lib/supabase";
+import { getCategoryBySlug, getLecturesByCategory } from "@/lib/queries";
+
+export const dynamic = "force-dynamic";
 
 async function getCategory(slug: string) {
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("slug", slug)
-    .eq("content_type", "lecture")
-    .single();
-  return data;
+  return getCategoryBySlug(slug, "lecture");
 }
 
 async function getLectures(categoryId: string) {
-  const { data } = await supabase
-    .from("lectures")
-    .select("*")
-    .eq("category_id", categoryId)
-    .order("title");
-  return data ?? [];
+  return getLecturesByCategory(categoryId);
 }
 
 export async function generateMetadata({

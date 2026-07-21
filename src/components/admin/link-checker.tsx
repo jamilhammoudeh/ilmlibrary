@@ -1,11 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import { Link2, Link2Off, CheckCircle2, Loader2, AlertTriangle } from "lucide-react";
 
 type Summary = {
   total: number;
+  ok: number;
+  broken: number;
+  timeout: number;
+  error: number;
+  checked_at: string;
+};
+
+// One batch of the cursor-paged check-links scan (Workers subrequest limits).
+type CheckBatch = {
+  total_targets: number;
+  checked: number;
+  cursor_next: number | null;
   ok: number;
   broken: number;
   timeout: number;
@@ -42,27 +54,26 @@ export function LinkChecker({ onComplete }: { onComplete?: () => void }) {
 
   useEffect(() => {
     async function loadLatest() {
-      const [totalR, brokenR, mostRecentR] = await Promise.all([
-        supabase
-          .from("link_check_results")
-          .select("*", { count: "exact", head: true }),
-        supabase
-          .from("link_check_results")
-          .select("*", { count: "exact", head: true })
-          .in("status", ["broken", "timeout", "error"]),
-        supabase
-          .from("link_check_results")
-          .select("checked_at")
-          .order("checked_at", { ascending: false })
-          .limit(1),
-      ]);
-      setLatest({
-        lastCheckedAt:
-          ((mostRecentR.data as { checked_at: string }[]) ?? [])[0]
-            ?.checked_at ?? null,
-        brokenCount: brokenR.count ?? 0,
-        totalCount: totalR.count ?? 0,
-      });
+      try {
+        const [totalR, brokenR, mostRecentR] = await Promise.all([
+          adminApi.list("link_check_results", { countOnly: true }),
+          adminApi.list("link_check_results", {
+            in: { status: ["broken", "timeout", "error"] },
+            countOnly: true,
+          }),
+          adminApi.list<{ checked_at: string }>("link_check_results", {
+            orderBy: [{ col: "checked_at", dir: "desc" }],
+            limit: 1,
+          }),
+        ]);
+        setLatest({
+          lastCheckedAt: mostRecentR.rows[0]?.checked_at ?? null,
+          brokenCount: brokenR.count ?? 0,
+          totalCount: totalR.count ?? 0,
+        });
+      } catch {
+        // Non-critical summary; leave empty on failure.
+      }
     }
     loadLatest();
   }, []);
@@ -71,25 +82,36 @@ export function LinkChecker({ onComplete }: { onComplete?: () => void }) {
     setRunning(true);
     setError(null);
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData.session?.access_token;
-      if (!token) {
-        setError("Not authenticated");
-        return;
+      // The route checks links in cursor-paged batches (Workers subrequest
+      // limits); keep POSTing until cursor_next is null, accumulating totals.
+      let cursor: number | null = 0;
+      let totalTargets = 0;
+      let ok = 0;
+      let broken = 0;
+      let timeout = 0;
+      let errorCount = 0;
+      let checkedAt = new Date().toISOString();
+      while (cursor !== null) {
+        const batch: CheckBatch = await adminApi.post<CheckBatch>(
+          "/api/admin/check-links",
+          { cursor }
+        );
+        totalTargets = batch.total_targets;
+        ok += batch.ok;
+        broken += batch.broken;
+        timeout += batch.timeout;
+        errorCount += batch.error;
+        checkedAt = batch.checked_at;
+        cursor = batch.cursor_next;
       }
-      const res = await fetch("/api/admin/check-links", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setError(body.error ?? `Check failed (${res.status})`);
-        return;
-      }
-      const summary = (await res.json()) as Summary;
+      const summary: Summary = {
+        total: totalTargets,
+        ok,
+        broken,
+        timeout,
+        error: errorCount,
+        checked_at: checkedAt,
+      };
       setLastRun(summary);
       setLatest({
         lastCheckedAt: summary.checked_at,

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import {
   BookOpen,
   Mic,
@@ -72,126 +72,15 @@ export default function AdminActivityPage() {
   useEffect(() => {
     async function load() {
       setItems(null);
-      const [books, lectures, khutbas, duas, wisdom, pages, categories] =
-        await Promise.all([
-          supabase
-            .from("books")
-            .select("id,title,author,slug,created_at")
-            .order("created_at", { ascending: false, nullsFirst: false })
-            .limit(15),
-          supabase
-            .from("lectures")
-            .select("id,title,speaker,slug,created_at")
-            .order("created_at", { ascending: false, nullsFirst: false })
-            .limit(15),
-          supabase
-            .from("khutbas")
-            .select("id,title,speaker,slug,created_at")
-            .order("created_at", { ascending: false, nullsFirst: false })
-            .limit(15),
-          supabase
-            .from("duas")
-            .select("id,title,translation,created_at")
-            .order("created_at", { ascending: false, nullsFirst: false })
-            .limit(15),
-          supabase
-            .from("wisdom")
-            .select("id,quote_english,attribution,created_at")
-            .order("created_at", { ascending: false, nullsFirst: false })
-            .limit(15),
-          supabase
-            .from("pages")
-            .select("id,title,slug,created_at,updated_at")
-            .order("updated_at", { ascending: false, nullsFirst: false })
-            .limit(15),
-          supabase
-            .from("categories")
-            .select("id,name,content_type,created_at")
-            .order("created_at", { ascending: false })
-            .limit(10),
-        ]);
-
-      type BookRow = { id: string; title: string; author: string; slug: string; created_at: string };
-      type SpeakerRow = { id: string; title: string; speaker: string; slug: string; created_at: string };
-      type DuaRow = { id: string; title: string | null; translation: string; created_at: string };
-      type WisdomRow = { id: string; quote_english: string; attribution: string; created_at: string };
-      type PageRow = { id: string; title: string; slug: string; created_at: string; updated_at?: string };
-      type CategoryRow = { id: string; name: string; content_type: string; created_at: string };
-
-      const all: Activity[] = [
-        ...((books.data as BookRow[]) ?? []).map((b) => ({
-          id: b.id,
-          type: "book" as const,
-          title: b.title,
-          subtitle: b.author,
-          created_at: b.created_at,
-          editHref: `/admin/books?edit=${b.id}`,
-          publicHref: `/books/${b.slug}`,
-        })),
-        ...((lectures.data as SpeakerRow[]) ?? []).map((l) => ({
-          id: l.id,
-          type: "lecture" as const,
-          title: l.title,
-          subtitle: l.speaker,
-          created_at: l.created_at,
-          editHref: `/admin/lectures?edit=${l.id}`,
-          publicHref: `/lectures/${l.slug}`,
-        })),
-        ...((khutbas.data as SpeakerRow[]) ?? []).map((k) => ({
-          id: k.id,
-          type: "khutba" as const,
-          title: k.title,
-          subtitle: k.speaker,
-          created_at: k.created_at,
-          editHref: `/admin/khutbas?edit=${k.id}`,
-          publicHref: `/khutbas/${k.slug}`,
-        })),
-        ...((duas.data as DuaRow[]) ?? []).map((d) => ({
-          id: d.id,
-          type: "dua" as const,
-          title: d.title || d.translation?.slice(0, 60) || "(Dua)",
-          created_at: d.created_at,
-          editHref: `/admin/duas?edit=${d.id}`,
-          publicHref: "/duas",
-        })),
-        ...((wisdom.data as WisdomRow[]) ?? []).map((w) => ({
-          id: w.id,
-          type: "wisdom" as const,
-          title:
-            w.quote_english?.slice(0, 80) +
-              (w.quote_english && w.quote_english.length > 80 ? "…" : "") ||
-            "(Untitled)",
-          subtitle: w.attribution,
-          created_at: w.created_at,
-          editHref: `/admin/wisdom?edit=${w.id}`,
-          publicHref: "/wisdom",
-        })),
-        ...((pages.data as PageRow[]) ?? []).map((p) => ({
-          id: p.id,
-          type: "page" as const,
-          title: p.title,
-          subtitle: `/${p.slug}`,
-          created_at: p.updated_at ?? p.created_at,
-          updated_at: p.updated_at,
-          editHref: `/admin/pages?edit=${p.id}`,
-          publicHref: `/${p.slug}`,
-        })),
-        ...((categories.data as CategoryRow[]) ?? []).map((c) => ({
-          id: c.id,
-          type: "category" as const,
-          title: c.name,
-          subtitle: `${c.content_type} category`,
-          created_at: c.created_at,
-          editHref: `/admin/categories`,
-        })),
-      ];
-
-      all.sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-
-      setItems(all.slice(0, 50));
+      try {
+        // Rows are merged and sorted server-side across every content table.
+        const { items } = await adminApi.get<{ items: Activity[] }>(
+          "/api/admin/activity"
+        );
+        setItems(items);
+      } catch {
+        // Leave the loading skeletons in place on failure.
+      }
     }
     load();
   }, []);

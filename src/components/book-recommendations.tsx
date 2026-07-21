@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { supabase } from "@/lib/supabase";
+import { getRelatedBooks } from "@/lib/queries";
 
 export async function BookRecommendations({
   currentBookId,
@@ -13,15 +13,9 @@ export async function BookRecommendations({
 }) {
   if (!categoryId) return null;
 
-  const { data } = await supabase
-    .from("books")
-    .select("id, title, slug, cover_url, author")
-    .eq("category_id", categoryId)
-    .neq("id", currentBookId)
-    .order("display_order")
-    .limit(4);
+  const data = await getRelatedBooks(categoryId, currentBookId, 4);
 
-  if (!data || data.length === 0) return null;
+  if (data.length === 0) return null;
 
   return (
     <section className="max-w-[1100px] mx-auto px-5 pb-20 md:pb-24">

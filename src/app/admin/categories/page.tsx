@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import type { Category } from "@/types/database";
 import {
   Plus,
@@ -27,7 +27,6 @@ import { Modal } from "@/components/admin/modal";
 import { Field, SelectField, PrimaryButton, GhostButton } from "@/components/admin/form-fields";
 import { useToast } from "@/components/admin/toast";
 import { useUrlString, useUrlUpdater } from "@/hooks/use-url-state";
-import { logAudit } from "@/lib/audit";
 
 const contentTypes = ["book", "lecture", "khutba", "dua", "wisdom", "guide"] as const;
 type ContentType = (typeof contentTypes)[number];
@@ -87,13 +86,14 @@ function CategoriesAdmin() {
 
   async function loadCategories() {
     setLoading(true);
-    const { data } = await supabase
-      .from("categories")
-      .select("*")
-      .order("content_type")
-      .order("sort_order")
-      .order("name");
-    setCategories(data ?? []);
+    try {
+      const { rows } = await adminApi.list<Category>("categories", {
+        orderBy: [{ col: "content_type" }, { col: "sort_order" }, { col: "name" }],
+      });
+      setCategories(rows);
+    } catch {
+      setCategories([]);
+    }
     setLoading(false);
   }
 
@@ -128,11 +128,12 @@ function CategoriesAdmin() {
       })
     );
 
-    const [r1, r2] = await Promise.all([
-      supabase.from("categories").update({ sort_order: bOrder }).eq("id", a.id),
-      supabase.from("categories").update({ sort_order: aOrder }).eq("id", b.id),
-    ]);
-    if (r1.error || r2.error) {
+    try {
+      await Promise.all([
+        adminApi.update("categories", a.id, { sort_order: bOrder }),
+        adminApi.update("categories", b.id, { sort_order: aOrder }),
+      ]);
+    } catch {
       notify("Reorder failed", "error");
       loadCategories();
     }
@@ -158,25 +159,18 @@ function CategoriesAdmin() {
       hidden: editing.hidden ?? false,
       parent_id: editing.parent_id || null,
     };
-    const { data: saved, error } = isNew
-      ? await supabase.from("categories").insert(catData).select("id").single()
-      : await supabase
-          .from("categories")
-          .update(catData)
-          .eq("id", editing.id!)
-          .select("id")
-          .single();
-    setSaving(false);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      if (isNew) {
+        await adminApi.insert("categories", catData);
+      } else {
+        await adminApi.update("categories", editing.id!, catData);
+      }
+    } catch (err) {
+      setSaving(false);
+      notify(err instanceof Error ? err.message : "Save failed", "error");
       return;
     }
-    logAudit({
-      action: isNew ? "create" : "update",
-      resourceType: "category",
-      resourceId: (saved as { id?: string } | null)?.id ?? editing.id ?? null,
-      resourceTitle: catData.name,
-    });
+    setSaving(false);
     notify(isNew ? "Category added" : "Changes saved");
     setEditing(null);
     setIsNew(false);
@@ -185,28 +179,21 @@ function CategoriesAdmin() {
 
   async function handleDelete(id: string, name: string) {
     if (!confirm(`Delete "${name}"? Items in it will become uncategorized.`)) return;
-    const { error } = await supabase.from("categories").delete().eq("id", id);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.remove("categories", id);
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Delete failed", "error");
       return;
     }
-    logAudit({
-      action: "delete",
-      resourceType: "category",
-      resourceId: id,
-      resourceTitle: name,
-    });
     notify("Category deleted");
     loadCategories();
   }
 
   async function toggleHidden(cat: Category) {
-    const { error } = await supabase
-      .from("categories")
-      .update({ hidden: !cat.hidden })
-      .eq("id", cat.id);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.update("categories", cat.id, { hidden: !cat.hidden });
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Update failed", "error");
       return;
     }
     notify(!cat.hidden ? "Category hidden" : "Category visible");

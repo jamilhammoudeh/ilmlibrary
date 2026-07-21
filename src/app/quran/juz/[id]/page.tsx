@@ -33,7 +33,7 @@ export default function JuzDetailPage({
       const res = await fetch(
         `https://api.quran.com/api/v4/verses/by_juz/${juzId}?language=en&fields=text_uthmani&translations=22&per_page=400`
       );
-      const data = await res.json();
+      const data = (await res.json()) as { verses?: Verse[] };
       setVerses(data.verses ?? []);
       setLoading(false);
     }

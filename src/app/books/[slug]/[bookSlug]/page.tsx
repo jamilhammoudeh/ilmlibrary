@@ -1,30 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import type { Book, Category } from "@/types/database";
+import { getBookBySlug } from "@/lib/queries";
 import { ContentHeader } from "@/components/content-header";
 import { ShareButton } from "@/components/share-button";
 import { AddToListButton } from "@/components/add-to-list-button";
 import { BookmarkButton } from "@/components/bookmark-button";
 import { BookRecommendations } from "@/components/book-recommendations";
 
-async function getBook(bookSlug: string) {
-  const { data } = await supabase
-    .from("books")
-    .select("*")
-    .eq("slug", bookSlug)
-    .single();
-  return data;
-}
+export const dynamic = "force-dynamic";
 
-async function getCategory(categoryId: string) {
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("id", categoryId)
-    .single();
-  return data;
+async function getBook(bookSlug: string) {
+  return getBookBySlug(bookSlug);
 }
 
 export async function generateMetadata({
@@ -49,15 +36,13 @@ export default async function BookDetailPage({
   const book = await getBook(bookSlug);
   if (!book) notFound();
 
-  const category = book.category_id ? await getCategory(book.category_id) : null;
-
   return (
     <>
       <ContentHeader
         title={book.title}
         breadcrumbs={[
           { label: "Books", href: "/books" },
-          { label: category?.name ?? "Category", href: `/books/${slug}` },
+          { label: book.category_name ?? "Category", href: `/books/${slug}` },
           { label: book.title },
         ]}
       />

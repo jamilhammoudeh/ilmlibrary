@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import type { Book, Category } from "@/types/database";
 import {
   Plus,
@@ -28,7 +28,6 @@ import { Field, SelectField, PrimaryButton, GhostButton } from "@/components/adm
 import { useToast } from "@/components/admin/toast";
 import { BulkBar } from "@/components/admin/bulk-bar";
 import { useUrlString, useUrlNumber, useUrlUpdater } from "@/hooks/use-url-state";
-import { logAudit } from "@/lib/audit";
 
 type SortKey = "title" | "author" | "created_at" | "display_order";
 type SortDir = "asc" | "desc";
@@ -84,40 +83,47 @@ function BooksAdmin() {
   const loadBooks = useCallback(async () => {
     setLoading(true);
 
-    // Fetch accurate counts in parallel with the list
-    const countOpts = { count: "exact" as const, head: true };
-    const [listR, totalR, missingPdfR, missingCoverR, missingDescR, missingCatR] =
-      await Promise.all([
-        supabase.from("books").select("*").range(0, 999),
-        supabase.from("books").select("*", countOpts),
-        supabase.from("books").select("*", countOpts).is("pdf_url", null),
-        supabase.from("books").select("*", countOpts).is("cover_url", null),
-        supabase.from("books").select("*", countOpts).is("description", null),
-        supabase.from("books").select("*", countOpts).is("category_id", null),
-      ]);
+    try {
+      // Fetch accurate counts in parallel with the list
+      const [listR, totalR, missingPdfR, missingCoverR, missingDescR, missingCatR] =
+        await Promise.all([
+          adminApi.list<Book>("books", { limit: 1000 }),
+          adminApi.list<Book>("books", { countOnly: true }),
+          adminApi.list<Book>("books", { isNull: ["pdf_url"], countOnly: true }),
+          adminApi.list<Book>("books", { isNull: ["cover_url"], countOnly: true }),
+          adminApi.list<Book>("books", { isNull: ["description"], countOnly: true }),
+          adminApi.list<Book>("books", { isNull: ["category_id"], countOnly: true }),
+        ]);
 
-    const list = listR.data ?? [];
-    const total = totalR.count ?? list.length;
+      const list = listR.rows;
+      const total = totalR.count ?? list.length;
 
-    setBooks(list);
-    setCounts({
-      total,
-      missingPdf: missingPdfR.count ?? 0,
-      missingCover: missingCoverR.count ?? 0,
-      missingDescription: missingDescR.count ?? 0,
-      missingCategory: missingCatR.count ?? 0,
-      truncated: total > list.length,
-    });
+      setBooks(list);
+      setCounts({
+        total,
+        missingPdf: missingPdfR.count ?? 0,
+        missingCover: missingCoverR.count ?? 0,
+        missingDescription: missingDescR.count ?? 0,
+        missingCategory: missingCatR.count ?? 0,
+        truncated: total > list.length,
+      });
+    } catch {
+      setBooks([]);
+      setCounts(null);
+    }
     setLoading(false);
   }, []);
 
   const loadCategories = useCallback(async () => {
-    const { data } = await supabase
-      .from("categories")
-      .select("*")
-      .eq("content_type", "book")
-      .order("name");
-    setCategories(data ?? []);
+    try {
+      const { rows } = await adminApi.list<Category>("categories", {
+        eq: { content_type: "book" },
+        orderBy: [{ col: "name" }],
+      });
+      setCategories(rows);
+    } catch {
+      setCategories([]);
+    }
   }, []);
 
   useEffect(() => {
@@ -144,18 +150,20 @@ function BooksAdmin() {
       return;
     }
     // Fallback: book is not in the loaded list. Fetch it directly.
-    supabase
-      .from("books")
-      .select("*")
-      .eq("id", editId)
-      .single()
-      .then(({ data }) => {
+    adminApi
+      .list<Book>("books", { eq: { id: editId }, limit: 1 })
+      .then(({ rows }) => {
+        const data = rows[0];
         if (data) {
           setEditing({ ...data });
           setIsNew(false);
         } else {
           notify("Book not found", "error");
         }
+        updateUrl({ edit: null });
+      })
+      .catch(() => {
+        notify("Book not found", "error");
         updateUrl({ edit: null });
       });
   }, [editId, newFlag, books, updateUrl, notify]);
@@ -183,59 +191,49 @@ function BooksAdmin() {
       let candidate = base;
       let suffix = 1;
       while (true) {
-        const { count } = await supabase
-          .from("books")
-          .select("*", { count: "exact", head: true })
-          .eq("slug", candidate)
-          .neq("id", editing!.id ?? "");
+        const { count } = await adminApi.list("books", {
+          eq: { slug: candidate },
+          neq: { id: editing!.id ?? "" },
+          countOnly: true,
+        });
         if ((count ?? 0) === 0) return candidate;
         suffix += 1;
         candidate = `${base}-${suffix}`;
       }
     }
 
-    let slug: string;
-    if (isNew) {
-      slug = await uniqueSlug(slugify(editing.title));
-    } else {
-      // Preserve existing slug on edit to keep public URLs stable.
-      slug = (editing as Book).slug ?? slugify(editing.title);
-    }
+    try {
+      let slug: string;
+      if (isNew) {
+        slug = await uniqueSlug(slugify(editing.title));
+      } else {
+        // Preserve existing slug on edit to keep public URLs stable.
+        slug = (editing as Book).slug ?? slugify(editing.title);
+      }
 
-    const bookData = {
-      title: editing.title.trim(),
-      slug,
-      author: editing.author.trim(),
-      translator: editing.translator?.trim() || null,
-      description: editing.description?.trim() || null,
-      cover_url: editing.cover_url || null,
-      pdf_url: editing.pdf_url || null,
-      category_id: editing.category_id || null,
-    };
+      const bookData = {
+        title: editing.title.trim(),
+        slug,
+        author: editing.author.trim(),
+        translator: editing.translator?.trim() || null,
+        description: editing.description?.trim() || null,
+        cover_url: editing.cover_url || null,
+        pdf_url: editing.pdf_url || null,
+        category_id: editing.category_id || null,
+      };
 
-    const { data: saved, error } = isNew
-      ? await supabase.from("books").insert(bookData).select("id").single()
-      : await supabase
-          .from("books")
-          .update(bookData)
-          .eq("id", editing.id!)
-          .select("id")
-          .single();
-
-    setSaving(false);
-
-    if (error) {
-      notify(error.message, "error");
+      if (isNew) {
+        await adminApi.insert("books", bookData);
+      } else {
+        await adminApi.update("books", editing.id!, bookData);
+      }
+    } catch (err) {
+      setSaving(false);
+      notify(err instanceof Error ? err.message : "Save failed", "error");
       return;
     }
 
-    logAudit({
-      action: isNew ? "create" : "update",
-      resourceType: "book",
-      resourceId: saved?.id ?? editing.id ?? null,
-      resourceTitle: bookData.title,
-    });
-
+    setSaving(false);
     notify(isNew ? "Book added" : "Changes saved");
     setEditing(null);
     setIsNew(false);
@@ -244,17 +242,12 @@ function BooksAdmin() {
 
   async function handleDelete(id: string, title: string) {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
-    const { error } = await supabase.from("books").delete().eq("id", id);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.remove("books", id);
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Delete failed", "error");
       return;
     }
-    logAudit({
-      action: "delete",
-      resourceType: "book",
-      resourceId: id,
-      resourceTitle: title,
-    });
     notify("Book deleted");
     loadBooks();
   }
@@ -264,19 +257,14 @@ function BooksAdmin() {
     if (!confirm(`Delete ${ids.length} book${ids.length === 1 ? "" : "s"}? This cannot be undone.`))
       return;
     setBulkBusy(true);
-    const titles = books.filter((b) => ids.includes(b.id)).map((b) => b.title);
-    const { error } = await supabase.from("books").delete().in("id", ids);
-    setBulkBusy(false);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.removeMany("books", ids);
+    } catch (err) {
+      setBulkBusy(false);
+      notify(err instanceof Error ? err.message : "Delete failed", "error");
       return;
     }
-    logAudit({
-      action: "bulk_delete",
-      resourceType: "book",
-      resourceTitle: `${ids.length} books`,
-      details: { count: ids.length, ids, titles },
-    });
+    setBulkBusy(false);
     notify(`${ids.length} book${ids.length === 1 ? "" : "s"} deleted`);
     setSelected(new Set());
     loadBooks();
@@ -285,21 +273,14 @@ function BooksAdmin() {
   async function handleBulkReassign(categoryId: string | null) {
     const ids = Array.from(selected);
     setBulkBusy(true);
-    const { error } = await supabase
-      .from("books")
-      .update({ category_id: categoryId })
-      .in("id", ids);
-    setBulkBusy(false);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.updateMany("books", ids, { category_id: categoryId });
+    } catch (err) {
+      setBulkBusy(false);
+      notify(err instanceof Error ? err.message : "Update failed", "error");
       return;
     }
-    logAudit({
-      action: "bulk_update",
-      resourceType: "book",
-      resourceTitle: `${ids.length} books`,
-      details: { count: ids.length, ids, changes: { category_id: categoryId } },
-    });
+    setBulkBusy(false);
     notify(`${ids.length} book${ids.length === 1 ? "" : "s"} updated`);
     setSelected(new Set());
     loadBooks();
@@ -435,12 +416,13 @@ function BooksAdmin() {
           return u ? ({ ...bk, display_order: u.display_order } as Book) : bk;
         })
       );
-      const results = await Promise.all(
-        updates.map((u) =>
-          supabase.from("books").update({ display_order: u.display_order }).eq("id", u.id)
-        )
-      );
-      if (results.some((r) => r.error)) {
+      try {
+        await Promise.all(
+          updates.map((u) =>
+            adminApi.update("books", u.id, { display_order: u.display_order })
+          )
+        );
+      } catch {
         notify("Reorder failed", "error");
         loadBooks();
       }
@@ -453,11 +435,9 @@ function BooksAdmin() {
         bk.id === draggedId ? ({ ...bk, display_order: newOrder } as Book) : bk
       )
     );
-    const { error } = await supabase
-      .from("books")
-      .update({ display_order: newOrder })
-      .eq("id", draggedId);
-    if (error) {
+    try {
+      await adminApi.update("books", draggedId, { display_order: newOrder });
+    } catch {
       notify("Reorder failed", "error");
       loadBooks();
     }
@@ -483,11 +463,12 @@ function BooksAdmin() {
       })
     );
 
-    const [r1, r2] = await Promise.all([
-      supabase.from("books").update({ display_order: bOrder }).eq("id", a.id),
-      supabase.from("books").update({ display_order: aOrder }).eq("id", b.id),
-    ]);
-    if (r1.error || r2.error) {
+    try {
+      await Promise.all([
+        adminApi.update("books", a.id, { display_order: bOrder }),
+        adminApi.update("books", b.id, { display_order: aOrder }),
+      ]);
+    } catch {
       notify("Reorder failed", "error");
       loadBooks();
     }

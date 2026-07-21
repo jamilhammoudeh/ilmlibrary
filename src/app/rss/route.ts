@@ -1,16 +1,14 @@
-import { supabase } from "@/lib/supabase";
+import { getRecentBooksWithCategory } from "@/lib/queries";
 import { SITE_URL } from "@/lib/site";
 
-export async function GET() {
-  const { data: books } = await supabase
-    .from("books")
-    .select("title, slug, author, description, created_at, categories(slug)")
-    .order("created_at", { ascending: false })
-    .limit(50);
+export const dynamic = "force-dynamic";
 
-  const items = (books ?? [])
-    .map((b: any) => {
-      const url = `${SITE_URL}/books/${b.categories?.slug ?? "uncategorized"}/${b.slug}`;
+export async function GET() {
+  const books = await getRecentBooksWithCategory(50);
+
+  const items = books
+    .map((b) => {
+      const url = `${SITE_URL}/books/${b.category_slug ?? "uncategorized"}/${b.slug}`;
       return `    <item>
       <title><![CDATA[${b.title}]]></title>
       <link>${url}</link>

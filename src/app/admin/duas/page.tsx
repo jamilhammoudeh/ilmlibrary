@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import type { Dua } from "@/types/database";
 import { Plus, Pencil, Trash2, Search, HandHeart, BookMarked, Globe } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
@@ -10,7 +10,6 @@ import { Modal } from "@/components/admin/modal";
 import { Field, PrimaryButton, GhostButton } from "@/components/admin/form-fields";
 import { useToast } from "@/components/admin/toast";
 import { useUrlString, useUrlUpdater } from "@/hooks/use-url-state";
-import { logAudit } from "@/lib/audit";
 
 export default function AdminDuasPage() {
   return (
@@ -55,12 +54,15 @@ function DuasAdmin() {
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase
-      .from("duas")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(500);
-    setItems(data ?? []);
+    try {
+      const { rows } = await adminApi.list<Dua>("duas", {
+        orderBy: [{ col: "created_at", dir: "desc" }],
+        limit: 500,
+      });
+      setItems(rows);
+    } catch {
+      setItems([]);
+    }
     setLoading(false);
   }
 
@@ -79,25 +81,18 @@ function DuasAdmin() {
       source: editing.source?.trim() || null,
       category_id: null,
     };
-    const { data: saved, error } = isNew
-      ? await supabase.from("duas").insert(d).select("id").single()
-      : await supabase
-          .from("duas")
-          .update(d)
-          .eq("id", editing.id!)
-          .select("id")
-          .single();
-    setSaving(false);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      if (isNew) {
+        await adminApi.insert("duas", d);
+      } else {
+        await adminApi.update("duas", editing.id!, d);
+      }
+    } catch (err) {
+      setSaving(false);
+      notify(err instanceof Error ? err.message : "Save failed", "error");
       return;
     }
-    logAudit({
-      action: isNew ? "create" : "update",
-      resourceType: "dua",
-      resourceId: (saved as { id?: string } | null)?.id ?? editing.id ?? null,
-      resourceTitle: d.title ?? d.translation?.slice(0, 80) ?? null,
-    });
+    setSaving(false);
     notify(isNew ? "Dua added" : "Changes saved");
     setEditing(null);
     setIsNew(false);
@@ -106,18 +101,12 @@ function DuasAdmin() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this dua? This cannot be undone.")) return;
-    const target = items.find((d) => d.id === id);
-    const { error } = await supabase.from("duas").delete().eq("id", id);
-    if (error) {
-      notify(error.message, "error");
+    try {
+      await adminApi.remove("duas", id);
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Delete failed", "error");
       return;
     }
-    logAudit({
-      action: "delete",
-      resourceType: "dua",
-      resourceId: id,
-      resourceTitle: target?.title ?? target?.translation?.slice(0, 80) ?? null,
-    });
     notify("Dua deleted");
     load();
   }

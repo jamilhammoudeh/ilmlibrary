@@ -10,7 +10,7 @@ import {
   deleteReadingList,
   type ReadingList,
 } from "@/lib/reading-lists";
-import { supabase } from "@/lib/supabase";
+import type { Book, Category } from "@/types/database";
 import { Plus, Trash2, BookOpen, Bookmark } from "lucide-react";
 
 export default function ReadingListsPage() {
@@ -25,24 +25,28 @@ export default function ReadingListsPage() {
     // Load book details for all book IDs
     const allIds = [...new Set(l.flatMap((list) => list.bookIds))];
     if (allIds.length > 0) {
-      supabase
-        .from("books")
-        .select("id, title, cover_url, slug, category_id")
-        .in("id", allIds)
-        .then(async ({ data }) => {
-          // Get category slugs
-          const catIds = [...new Set((data ?? []).map((b) => b.category_id).filter((id): id is string => id !== null))];
-          const { data: cats } = catIds.length > 0
-            ? await supabase.from("categories").select("id, slug").in("id", catIds)
-            : { data: [] };
-          const catMap = new Map((cats ?? []).map((c: any) => [c.id, c.slug]));
+      Promise.all([
+        fetch(
+          `/api/books/by-ids?ids=${allIds.map((id) => encodeURIComponent(id)).join(",")}`
+        ).then((r) =>
+          r.ok ? (r.json() as Promise<{ rows: Book[] }>) : { rows: [] as Book[] }
+        ),
+        fetch("/api/categories?type=book").then((r) =>
+          r.ok
+            ? (r.json() as Promise<{ rows: Category[] }>)
+            : { rows: [] as Category[] }
+        ),
+      ])
+        .then(([booksRes, catsRes]) => {
+          const catMap = new Map((catsRes.rows ?? []).map((c) => [c.id, c.slug]));
 
           const cache: Record<string, any> = {};
-          (data ?? []).forEach((b) => {
-            cache[b.id] = { ...b, categorySlug: catMap.get(b.category_id) ?? "uncategorized" };
+          (booksRes.rows ?? []).forEach((b) => {
+            cache[b.id] = { ...b, categorySlug: (b.category_id && catMap.get(b.category_id)) ?? "uncategorized" };
           });
           setBookCache(cache);
-        });
+        })
+        .catch(() => {});
     }
 
     function onChange() {

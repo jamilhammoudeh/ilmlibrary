@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import {
   Search,
   LayoutDashboard,
@@ -119,59 +119,66 @@ export function CommandPalette() {
     setSearching(true);
     let cancelled = false;
     const t = setTimeout(async () => {
-      const like = `%${q}%`;
-      const [booksR, lecturesR, khutbasR, duasR, wisdomR, pagesR] = await Promise.all([
-        supabase.from("books").select("id,title,author").ilike("title", like).limit(5),
-        supabase.from("lectures").select("id,title,speaker").ilike("title", like).limit(5),
-        supabase.from("khutbas").select("id,title,speaker").ilike("title", like).limit(5),
-        supabase.from("duas").select("id,title,translation").ilike("translation", like).limit(5),
-        supabase.from("wisdom").select("id,quote_english,attribution").ilike("quote_english", like).limit(5),
-        supabase.from("pages").select("id,title,slug,subtitle").ilike("title", like).limit(5),
-      ]);
-      if (cancelled) return;
-
       type BookRow = { id: string; title: string; author: string };
       type MediaRow = { id: string; title: string; speaker: string };
       type DuaRow = { id: string; title: string | null; translation: string };
       type WisdomRow = { id: string; quote_english: string; attribution: string };
       type PageRow = { id: string; title: string; slug: string; subtitle: string | null };
+      type SearchResponse = {
+        books: BookRow[];
+        lectures: MediaRow[];
+        khutbas: MediaRow[];
+        duas: DuaRow[];
+        wisdom: WisdomRow[];
+        pages: PageRow[];
+      };
+
+      let res: SearchResponse;
+      try {
+        res = await adminApi.get<SearchResponse>(
+          `/api/admin/search?q=${encodeURIComponent(q)}`
+        );
+      } catch {
+        res = { books: [], lectures: [], khutbas: [], duas: [], wisdom: [], pages: [] };
+      }
+      if (cancelled) return;
 
       const results: ContentHit[] = [
-        ...((booksR.data as BookRow[]) ?? []).map((r) => ({
+        ...res.books.map((r) => ({
           id: r.id,
           title: r.title,
           subtitle: r.author,
           type: "book" as const,
           editHref: `/admin/books?edit=${r.id}`,
         })),
-        ...((lecturesR.data as MediaRow[]) ?? []).map((r) => ({
+        ...res.lectures.map((r) => ({
           id: r.id,
           title: r.title,
           subtitle: r.speaker,
           type: "lecture" as const,
           editHref: `/admin/lectures?edit=${r.id}`,
         })),
-        ...((khutbasR.data as MediaRow[]) ?? []).map((r) => ({
+        ...res.khutbas.map((r) => ({
           id: r.id,
           title: r.title,
           subtitle: r.speaker,
           type: "khutba" as const,
           editHref: `/admin/khutbas?edit=${r.id}`,
         })),
-        ...((duasR.data as DuaRow[]) ?? []).map((r) => ({
+        ...res.duas.map((r) => ({
           id: r.id,
           title: r.title || r.translation.slice(0, 60),
           type: "dua" as const,
           editHref: `/admin/duas?edit=${r.id}`,
         })),
-        ...((wisdomR.data as WisdomRow[]) ?? []).map((r) => ({
+        ...res.wisdom.map((r) => ({
           id: r.id,
           title: r.quote_english.slice(0, 70) + (r.quote_english.length > 70 ? "…" : ""),
           subtitle: r.attribution,
           type: "wisdom" as const,
           editHref: `/admin/wisdom?edit=${r.id}`,
         })),
-        ...((pagesR.data as PageRow[]) ?? []).map((r) => ({
+        ...res.pages.map((r) => ({
           id: r.id,
           title: r.title,
           subtitle: r.subtitle ?? `/${r.slug}`,

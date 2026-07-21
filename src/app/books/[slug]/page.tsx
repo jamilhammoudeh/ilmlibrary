@@ -2,32 +2,27 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { BookOpen } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { getBooksPage, getCategoryBySlug } from "@/lib/queries";
 import { ContentHeader } from "@/components/content-header";
 import { EmptyState } from "@/components/empty-state";
+
+export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 30;
 
 async function getCategory(slug: string) {
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("slug", slug)
-    .eq("content_type", "book")
-    .single();
-  return data;
+  return getCategoryBySlug(slug, "book");
 }
 
 async function getBooks(categoryId: string, page: number) {
   const from = (page - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
-  const { data, count } = await supabase
-    .from("books")
-    .select("*", { count: "exact" })
-    .eq("category_id", categoryId)
-    .order("display_order")
-    .range(from, to);
-  return { books: data ?? [], total: count ?? 0 };
+  const { rows, total } = await getBooksPage({
+    categoryId,
+    offset: from,
+    limit: PAGE_SIZE,
+    withCount: true,
+  });
+  return { books: rows, total: total ?? 0 };
 }
 
 export async function generateMetadata({

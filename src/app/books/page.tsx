@@ -1,5 +1,7 @@
 import { BooksBrowser } from "@/components/books-browser";
-import { supabase } from "@/lib/supabase";
+import { getCategories as getCategoriesQuery } from "@/lib/queries";
+
+export const dynamic = "force-dynamic";
 
 // Category order from the legacy site. Matching is keyword-based (lowercased
 // `includes`) so small naming differences in the DB still sort correctly.
@@ -37,12 +39,7 @@ function rankCategory(name: string) {
 }
 
 async function getCategories() {
-  const { data } = await supabase
-    .from("categories")
-    .select("id, name, slug")
-    .eq("content_type", "book")
-    .eq("hidden", false);
-  const cats = data ?? [];
+  const cats = await getCategoriesQuery({ contentType: "book" });
   return [...cats].sort((a, b) => {
     const ra = rankCategory(a.name);
     const rb = rankCategory(b.name);

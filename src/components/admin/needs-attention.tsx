@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 import {
   AlertCircle,
   FileX,
@@ -70,111 +70,48 @@ export function NeedsAttention() {
     async function load() {
       setLoading(true);
 
-      const [
-        booksNoPdf,
-        booksNoCover,
-        booksNoDesc,
-        booksNoCategory,
-        lecturesNoMedia,
-        khutbasNoMedia,
-        duasNoArabic,
-        duasNoTranslation,
-        wisdomNoQuote,
-        pagesNoBody,
-        categoriesR,
-        brokenLinksR,
-      ] = await Promise.all([
-        supabase.from("books").select("id,title,author").is("pdf_url", null).limit(50),
-        supabase.from("books").select("id,title,author").is("cover_url", null).limit(50),
-        supabase.from("books").select("id,title,author").is("description", null).limit(50),
-        supabase.from("books").select("id,title,author").is("category_id", null).limit(50),
-        supabase
-          .from("lectures")
-          .select("id,title,speaker")
-          .is("audio_url", null)
-          .is("video_url", null)
-          .limit(30),
-        supabase
-          .from("khutbas")
-          .select("id,title,speaker")
-          .is("audio_url", null)
-          .is("video_url", null)
-          .limit(30),
-        supabase.from("duas").select("id,title,translation").is("arabic_text", null).limit(30),
-        supabase.from("duas").select("id,title,arabic_text").is("translation", null).limit(30),
-        supabase.from("wisdom").select("id,attribution").is("quote_english", null).limit(30),
-        supabase.from("pages").select("id,slug,title").is("body", null).limit(30),
-        supabase.from("categories").select("id,name,content_type"),
-        supabase
-          .from("link_check_results")
-          .select("resource_type,resource_id,field,status")
-          .in("status", ["broken", "timeout", "error"])
-          .limit(500),
-      ]);
-
-      type BrokenRow = {
-        resource_type: "book" | "lecture" | "khutba";
-        resource_id: string;
-        field: "cover_url" | "pdf_url" | "audio_url" | "video_url";
-        status: string;
-      };
-      const brokenByResource = new Map<
-        string,
-        { type: "book" | "lecture" | "khutba"; fields: Set<string> }
-      >();
-      ((brokenLinksR.data as BrokenRow[]) ?? []).forEach((r) => {
-        const key = `${r.resource_type}-${r.resource_id}`;
-        if (!brokenByResource.has(key)) {
-          brokenByResource.set(key, {
-            type: r.resource_type,
-            fields: new Set(),
-          });
-        }
-        brokenByResource.get(key)!.fields.add(r.field);
-      });
-
-      // Fetch titles for any broken resources not already loaded above
-      const needBookIds: string[] = [];
-      const needLectureIds: string[] = [];
-      const needKhutbaIds: string[] = [];
-      brokenByResource.forEach((v, key) => {
-        const id = key.slice(v.type.length + 1);
-        if (v.type === "book") needBookIds.push(id);
-        else if (v.type === "lecture") needLectureIds.push(id);
-        else if (v.type === "khutba") needKhutbaIds.push(id);
-      });
-
-      const [brokenBooksR, brokenLecturesR, brokenKhutbasR] = await Promise.all([
-        needBookIds.length
-          ? supabase
-              .from("books")
-              .select("id,title,author")
-              .in("id", needBookIds)
-          : Promise.resolve({ data: [] }),
-        needLectureIds.length
-          ? supabase
-              .from("lectures")
-              .select("id,title,speaker")
-              .in("id", needLectureIds)
-          : Promise.resolve({ data: [] }),
-        needKhutbaIds.length
-          ? supabase
-              .from("khutbas")
-              .select("id,title,speaker")
-              .in("id", needKhutbaIds)
-          : Promise.resolve({ data: [] }),
-      ]);
-
       type BookRow = { id: string; title: string; author: string };
       type MediaRow = { id: string; title: string; speaker: string };
       type DuaRow = { id: string; title: string | null; translation?: string | null; arabic_text?: string | null };
       type WisdomRow = { id: string; attribution: string };
       type PageRow = { id: string; slug: string; title: string };
-      type CategoryRow = {
+      type EmptyCategoryRow = {
         id: string;
         name: string;
         content_type: "book" | "lecture" | "khutba" | "dua" | "wisdom" | "guide";
       };
+      type BrokenRow = {
+        resource_type: "book" | "lecture" | "khutba";
+        resource_id: string;
+        field: "cover_url" | "pdf_url" | "audio_url" | "video_url";
+        status: string;
+        title: string;
+        subtitle: string;
+      };
+      type Payload = {
+        books_missing_pdf: BookRow[];
+        books_missing_cover: BookRow[];
+        books_missing_description: BookRow[];
+        books_missing_category: BookRow[];
+        lectures_missing_media: MediaRow[];
+        khutbas_missing_media: MediaRow[];
+        duas_missing_arabic: DuaRow[];
+        duas_missing_translation: DuaRow[];
+        wisdom_missing_quote: WisdomRow[];
+        pages_missing_body: PageRow[];
+        empty_categories: EmptyCategoryRow[];
+        broken_links: BrokenRow[];
+      };
+
+      let data: Payload;
+      try {
+        // All lists (including broken links joined back to titles and
+        // per-category emptiness) are computed server-side in one payload.
+        data = await adminApi.get<Payload>("/api/admin/needs-attention");
+      } catch {
+        setLoading(false);
+        return;
+      }
 
       // Aggregate book issues per id
       const bookMap = new Map<string, { row: BookRow; missing: Set<string> }>();
@@ -191,18 +128,19 @@ export function NeedsAttention() {
         if (!bookMap.has(row.id)) bookMap.set(row.id, { row, missing: new Set() });
         bookMap.get(row.id)!.missing.add(code);
       }
-      ((booksNoPdf.data as BookRow[]) ?? []).forEach((r) => addBook(r, "pdf"));
-      ((booksNoCover.data as BookRow[]) ?? []).forEach((r) => addBook(r, "cover"));
-      ((booksNoDesc.data as BookRow[]) ?? []).forEach((r) => addBook(r, "description"));
-      ((booksNoCategory.data as BookRow[]) ?? []).forEach((r) => addBook(r, "category"));
+      data.books_missing_pdf.forEach((r) => addBook(r, "pdf"));
+      data.books_missing_cover.forEach((r) => addBook(r, "cover"));
+      data.books_missing_description.forEach((r) => addBook(r, "description"));
+      data.books_missing_category.forEach((r) => addBook(r, "category"));
 
       // Broken links for books
-      ((brokenBooksR.data as BookRow[]) ?? []).forEach((r) => {
-        const entry = brokenByResource.get(`book-${r.id}`);
-        if (!entry) return;
-        if (entry.fields.has("pdf_url")) addBook(r, "broken_pdf");
-        if (entry.fields.has("cover_url")) addBook(r, "broken_cover");
-      });
+      data.broken_links
+        .filter((r) => r.resource_type === "book")
+        .forEach((r) => {
+          const row: BookRow = { id: r.resource_id, title: r.title, author: r.subtitle };
+          if (r.field === "pdf_url") addBook(row, "broken_pdf");
+          if (r.field === "cover_url") addBook(row, "broken_cover");
+        });
 
       const bookIssues: Issue[] = Array.from(bookMap.values()).map(({ row, missing }) => ({
         key: `book-${row.id}`,
@@ -218,20 +156,23 @@ export function NeedsAttention() {
         string,
         { row: MediaRow; missing: Set<string> }
       >();
-      ((lecturesNoMedia.data as MediaRow[]) ?? []).forEach((r) => {
+      data.lectures_missing_media.forEach((r) => {
         lectureMap.set(r.id, { row: r, missing: new Set(["media"]) });
       });
-      ((brokenLecturesR.data as MediaRow[]) ?? []).forEach((r) => {
-        const entry = brokenByResource.get(`lecture-${r.id}`);
-        if (!entry) return;
-        if (!lectureMap.has(r.id)) {
-          lectureMap.set(r.id, { row: r, missing: new Set() });
-        }
-        if (entry.fields.has("audio_url"))
-          lectureMap.get(r.id)!.missing.add("broken_audio");
-        if (entry.fields.has("video_url"))
-          lectureMap.get(r.id)!.missing.add("broken_video");
-      });
+      data.broken_links
+        .filter((r) => r.resource_type === "lecture")
+        .forEach((r) => {
+          if (!lectureMap.has(r.resource_id)) {
+            lectureMap.set(r.resource_id, {
+              row: { id: r.resource_id, title: r.title, speaker: r.subtitle },
+              missing: new Set(),
+            });
+          }
+          if (r.field === "audio_url")
+            lectureMap.get(r.resource_id)!.missing.add("broken_audio");
+          if (r.field === "video_url")
+            lectureMap.get(r.resource_id)!.missing.add("broken_video");
+        });
       const lectureIssues: Issue[] = Array.from(lectureMap.values()).map(
         ({ row, missing }) => ({
           key: `lecture-${row.id}`,
@@ -250,20 +191,23 @@ export function NeedsAttention() {
         string,
         { row: MediaRow; missing: Set<string> }
       >();
-      ((khutbasNoMedia.data as MediaRow[]) ?? []).forEach((r) => {
+      data.khutbas_missing_media.forEach((r) => {
         khutbaMap.set(r.id, { row: r, missing: new Set(["media"]) });
       });
-      ((brokenKhutbasR.data as MediaRow[]) ?? []).forEach((r) => {
-        const entry = brokenByResource.get(`khutba-${r.id}`);
-        if (!entry) return;
-        if (!khutbaMap.has(r.id)) {
-          khutbaMap.set(r.id, { row: r, missing: new Set() });
-        }
-        if (entry.fields.has("audio_url"))
-          khutbaMap.get(r.id)!.missing.add("broken_audio");
-        if (entry.fields.has("video_url"))
-          khutbaMap.get(r.id)!.missing.add("broken_video");
-      });
+      data.broken_links
+        .filter((r) => r.resource_type === "khutba")
+        .forEach((r) => {
+          if (!khutbaMap.has(r.resource_id)) {
+            khutbaMap.set(r.resource_id, {
+              row: { id: r.resource_id, title: r.title, speaker: r.subtitle },
+              missing: new Set(),
+            });
+          }
+          if (r.field === "audio_url")
+            khutbaMap.get(r.resource_id)!.missing.add("broken_audio");
+          if (r.field === "video_url")
+            khutbaMap.get(r.resource_id)!.missing.add("broken_video");
+        });
       const khutbaIssues: Issue[] = Array.from(khutbaMap.values()).map(
         ({ row, missing }) => ({
           key: `khutba-${row.id}`,
@@ -283,8 +227,8 @@ export function NeedsAttention() {
         if (!duaMap.has(row.id)) duaMap.set(row.id, { row, missing: new Set() });
         duaMap.get(row.id)!.missing.add(code);
       }
-      ((duasNoArabic.data as DuaRow[]) ?? []).forEach((r) => addDua(r, "arabic"));
-      ((duasNoTranslation.data as DuaRow[]) ?? []).forEach((r) => addDua(r, "translation"));
+      data.duas_missing_arabic.forEach((r) => addDua(r, "arabic"));
+      data.duas_missing_translation.forEach((r) => addDua(r, "translation"));
       const duaIssues: Issue[] = Array.from(duaMap.values()).map(({ row, missing }) => ({
         key: `dua-${row.id}`,
         type: "dua",
@@ -295,17 +239,15 @@ export function NeedsAttention() {
         ),
       }));
 
-      const wisdomIssues: Issue[] = ((wisdomNoQuote.data as WisdomRow[]) ?? []).map(
-        (row) => ({
-          key: `wisdom-${row.id}`,
-          type: "wisdom",
-          title: row.attribution || "(No attribution)",
-          editHref: `/admin/wisdom?edit=${row.id}`,
-          missing: [missingMeta.quote],
-        })
-      );
+      const wisdomIssues: Issue[] = data.wisdom_missing_quote.map((row) => ({
+        key: `wisdom-${row.id}`,
+        type: "wisdom",
+        title: row.attribution || "(No attribution)",
+        editHref: `/admin/wisdom?edit=${row.id}`,
+        missing: [missingMeta.quote],
+      }));
 
-      const pageIssues: Issue[] = ((pagesNoBody.data as PageRow[]) ?? []).map((row) => ({
+      const pageIssues: Issue[] = data.pages_missing_body.map((row) => ({
         key: `page-${row.id}`,
         type: "page",
         title: row.title,
@@ -314,39 +256,15 @@ export function NeedsAttention() {
         missing: [missingMeta.body],
       }));
 
-      // Empty categories — need counts per category
-      const cats = (categoriesR.data as CategoryRow[]) ?? [];
-      const usageByTable: Record<string, string> = {
-        book: "books",
-        lecture: "lectures",
-        khutba: "khutbas",
-        dua: "duas",
-        wisdom: "wisdom",
-        guide: "guides",
-      };
-
-      const catCounts = await Promise.all(
-        cats.map(async (c) => {
-          const table = usageByTable[c.content_type];
-          if (!table) return { cat: c, count: 0 };
-          const { count } = await supabase
-            .from(table)
-            .select("*", { count: "exact", head: true })
-            .eq("category_id", c.id);
-          return { cat: c, count: count ?? 0 };
-        })
-      );
-
-      const categoryIssues: Issue[] = catCounts
-        .filter((c) => c.count === 0)
-        .map(({ cat }) => ({
-          key: `category-${cat.id}`,
-          type: "category",
-          title: cat.name,
-          subtitle: `No ${cat.content_type}s assigned`,
-          editHref: "/admin/categories",
-          missing: [{ label: "Empty", Icon: FolderOpen }],
-        }));
+      // Empty categories — computed server-side per content type
+      const categoryIssues: Issue[] = data.empty_categories.map((cat) => ({
+        key: `category-${cat.id}`,
+        type: "category",
+        title: cat.name,
+        subtitle: `No ${cat.content_type}s assigned`,
+        editHref: "/admin/categories",
+        missing: [{ label: "Empty", Icon: FolderOpen }],
+      }));
 
       setIssues([
         ...bookIssues,

@@ -29,7 +29,7 @@ export default function QuranSearchPage() {
       const res = await fetch(
         `https://api.quran.com/api/v4/search?q=${encodeURIComponent(query.trim())}&size=20&language=en`
       );
-      const data = await res.json();
+      const data = (await res.json()) as { search?: { results?: SearchResult[] } };
       setResults(data.search?.results ?? []);
     } catch {
       setResults([]);

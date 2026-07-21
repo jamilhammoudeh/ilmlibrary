@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 import { SITE_HOSTS } from "@/lib/site";
 
 const VISITOR_KEY = "ilm-visitor-id";
@@ -55,15 +54,30 @@ export function PageViewTracker() {
     const referrer = classifyReferrer(document.referrer);
     const user_agent = navigator.userAgent ?? null;
 
-    supabase
-      .from("page_views")
-      .insert({
-        path: pathname,
-        visitor_id: visitor_id || null,
-        referrer,
-        user_agent,
-      })
-      .then(() => {});
+    const payload = JSON.stringify({
+      path: pathname,
+      visitor_id: visitor_id || null,
+      referrer,
+      user_agent,
+    });
+
+    try {
+      if (typeof navigator.sendBeacon === "function") {
+        navigator.sendBeacon(
+          "/api/track",
+          new Blob([payload], { type: "application/json" })
+        );
+      } else {
+        fetch("/api/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          keepalive: true,
+        }).catch(() => {});
+      }
+    } catch {
+      // Tracking is best-effort; ignore failures.
+    }
   }, [pathname]);
 
   return null;

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { supabase } from "@/lib/supabase";
 import type { Book } from "@/types/database";
 
 const PAGE_SIZE = 30;
@@ -28,16 +27,22 @@ export function InfiniteBookGrid({
     if (loading || !hasMore) return;
     setLoading(true);
 
-    const { data } = await supabase
-      .from("books")
-      .select("*")
-      .eq("category_id", categoryId)
-      .order("display_order")
-      .range(books.length, books.length + PAGE_SIZE - 1);
+    try {
+      const res = await fetch(
+        `/api/books?category=${encodeURIComponent(categoryId)}&offset=${
+          books.length
+        }&limit=${PAGE_SIZE}`
+      );
+      const data = res.ok
+        ? ((await res.json()) as { rows: Book[] }).rows
+        : null;
 
-    if (data) {
-      setBooks((prev) => [...prev, ...data]);
-      if (data.length < PAGE_SIZE) setHasMore(false);
+      if (data) {
+        setBooks((prev) => [...prev, ...data]);
+        if (data.length < PAGE_SIZE) setHasMore(false);
+      }
+    } catch {
+      // Failed load: keep existing books, allow retry on next intersection.
     }
     setLoading(false);
   }, [loading, hasMore, books.length, categoryId]);

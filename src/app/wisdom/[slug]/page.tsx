@@ -3,29 +3,23 @@ import { notFound } from "next/navigation";
 import { BookOpen } from "lucide-react";
 import { ContentHeader } from "@/components/content-header";
 import { LightboxImage } from "@/components/image-lightbox";
-import { supabase } from "@/lib/supabase";
+import { getCategoryBySlug, getWisdom as getWisdomQuery } from "@/lib/queries";
+
+export const dynamic = "force-dynamic";
 
 function isImageUrl(url: string) {
   return url.match(/\.(png|jpg|jpeg|webp)$/i) || url.includes("/wisdom-images/");
 }
 
 async function getCategory(slug: string) {
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("slug", slug)
-    .eq("content_type", "wisdom")
-    .single();
-  return data;
+  return getCategoryBySlug(slug, "wisdom");
 }
 
 async function getWisdom(categoryId: string) {
-  const { data } = await supabase
-    .from("wisdom")
-    .select("*")
-    .eq("category_id", categoryId)
-    .order("created_at");
-  return data ?? [];
+  const quotes = await getWisdomQuery({ categoryId });
+  // Preserve the original created_at ordering (the shared helper sorts by
+  // attribution, which is uniform within a single scholar category).
+  return [...quotes].sort((a, b) => a.created_at.localeCompare(b.created_at));
 }
 
 export async function generateMetadata({

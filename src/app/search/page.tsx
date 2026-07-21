@@ -1,56 +1,20 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SearchBar } from "@/components/search-bar";
-import { supabase } from "@/lib/supabase";
+import { getCategoriesByIds, searchAll } from "@/lib/queries";
 import { BookOpen, Mic, Speaker, HandHeart, Lightbulb, Compass } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Search",
 };
 
 async function runSearch(query: string) {
-  const like = `%${query}%`;
-
-  const [booksRes, lecturesRes, khutbasRes, duasRes, wisdomRes, guidesRes] =
-    await Promise.all([
-      supabase
-        .from("books")
-        .select("id, title, slug, author, cover_url, category_id")
-        .or(`title.ilike.${like},author.ilike.${like},description.ilike.${like}`)
-        .limit(12),
-      supabase
-        .from("lectures")
-        .select("id, title, slug, speaker, description")
-        .or(`title.ilike.${like},speaker.ilike.${like},description.ilike.${like}`)
-        .limit(12),
-      supabase
-        .from("khutbas")
-        .select("id, title, slug, speaker, description")
-        .or(`title.ilike.${like},speaker.ilike.${like},description.ilike.${like}`)
-        .limit(12),
-      supabase
-        .from("duas")
-        .select("id, title, translation, source")
-        .or(`title.ilike.${like},translation.ilike.${like},source.ilike.${like}`)
-        .limit(12),
-      supabase
-        .from("wisdom")
-        .select("id, quote_english, attribution, source")
-        .or(`quote_english.ilike.${like},attribution.ilike.${like},source.ilike.${like}`)
-        .limit(12),
-      supabase
-        .from("guides")
-        .select("id, title, slug")
-        .or(`title.ilike.${like},content.ilike.${like}`)
-        .limit(12),
-    ]);
-
-  const books = booksRes.data ?? [];
-  const lectures = lecturesRes.data ?? [];
-  const khutbas = khutbasRes.data ?? [];
-  const duas = duasRes.data ?? [];
-  const wisdom = wisdomRes.data ?? [];
-  const guides = guidesRes.data ?? [];
+  const { books, lectures, khutbas, duas, wisdom, guides } = await searchAll(
+    query,
+    12
+  );
 
   // Resolve book category slugs so links work
   const categoryIds = [
@@ -58,11 +22,8 @@ async function runSearch(query: string) {
   ];
   const catMap = new Map<string, string>();
   if (categoryIds.length > 0) {
-    const { data: cats } = await supabase
-      .from("categories")
-      .select("id, slug")
-      .in("id", categoryIds);
-    for (const c of cats ?? []) catMap.set(c.id, c.slug);
+    const cats = await getCategoriesByIds(categoryIds);
+    for (const c of cats) catMap.set(c.id, c.slug);
   }
 
   const booksWithCat = books.map((b) => ({
