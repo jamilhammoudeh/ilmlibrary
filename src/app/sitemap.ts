@@ -9,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Static pages
   const staticPages = [
-    "", "/books", "/quran", "/duas", "/lectures",
+    "", "/books", "/books/authors", "/arabic", "/quran", "/duas", "/lectures",
     "/why-islam", "/why-islam/proving-islam", "/why-islam/defending-islam",
     "/why-islam/refutations", "/guides", "/wisdom", "/donate", "/about",
     "/quran/read", "/quran/reciters", "/quran/tajweed", "/quran/tafseer",
@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Individual books
-  const books = await getAllBookSlugs(2000);
+  const books = await getAllBookSlugs(10000);
   const bookPages = books.map((b) => ({
     url: `${baseUrl}/books/${b.category_slug ?? "uncategorized"}/${b.slug}`,
     lastModified: new Date(b.created_at),

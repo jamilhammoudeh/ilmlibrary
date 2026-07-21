@@ -30,6 +30,30 @@ body {
   line-height: 2;
 }
 
+/* Arabic titles (book cards, headings) — Amiri, tighter leading than body
+   Arabic, slightly larger because Arabic renders visually smaller at equal px */
+.arabic-title {
+  font-family: var(--font-amiri), serif;
+  direction: rtl;
+  line-height: 1.5;
+  font-size: 1.12em;
+}
+
+/* Horizontal scroll-snap strip (New Books carousel) */
+.scroll-strip {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding-bottom: 0.5rem;
+}
+.scroll-strip > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
 .card-shadow {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;

@@ -1,10 +1,11 @@
 "use client";
 
 import { Search, X, Loader2, BookOpen } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { BookCard } from "@/components/book-card";
 import { EmptyState } from "@/components/empty-state";
+import { useUrlString } from "@/hooks/use-url-state";
 import type { Book, Category as CategoryRow } from "@/types/database";
 
 type Category = {
@@ -19,15 +20,35 @@ type BookResult = {
   slug: string;
   author: string;
   cover_url: string | null;
+  language: string;
+  title_alt: string | null;
   categorySlug: string;
 };
 
-export function BooksBrowser({ categories }: { categories: Category[] }) {
+const LANG_TABS = [
+  { value: "", label: "All" },
+  { value: "en", label: "English" },
+  { value: "ar", label: "العربية", arabic: true },
+] as const;
+
+export function BooksBrowser({
+  categories,
+  initialLang = "",
+  initialSort = "default",
+}: {
+  categories: Category[];
+  initialLang?: string;
+  initialSort?: string;
+}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<BookResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // ?lang= and ?sort= live in the URL so filtered views are shareable.
+  const [lang, setLang] = useUrlString("lang", initialLang);
+  const [sort, setSort] = useUrlString("sort", initialSort);
 
   const trimmed = query.trim();
   const searching = trimmed.length >= 2;
@@ -44,10 +65,15 @@ export function BooksBrowser({ categories }: { categories: Category[] }) {
 
     const timer = setTimeout(async () => {
       try {
+        const params = new URLSearchParams({
+          q: trimmed,
+          sort,
+          limit: "30",
+        });
+        if (lang) params.set("lang", lang);
+
         const [booksRes, catsRes] = await Promise.all([
-          fetch(
-            `/api/books?q=${encodeURIComponent(trimmed)}&sort=title&limit=30`
-          ).then((r) =>
+          fetch(`/api/books?${params.toString()}`).then((r) =>
             r.ok
               ? (r.json() as Promise<{ rows: Book[] }>)
               : { rows: [] as Book[] }
@@ -70,6 +96,8 @@ export function BooksBrowser({ categories }: { categories: Category[] }) {
           slug: b.slug,
           author: b.author,
           cover_url: b.cover_url,
+          language: b.language,
+          title_alt: b.title_alt,
           categorySlug:
             (b.category_id && catMap.get(b.category_id)) ?? "uncategorized",
         }));
@@ -87,9 +115,10 @@ export function BooksBrowser({ categories }: { categories: Category[] }) {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [trimmed, searching]);
+  }, [trimmed, searching, lang, sort]);
 
   const hasQuery = query.length > 0;
+  const categoryQuery = lang ? `?lang=${lang}` : "";
 
   return (
     <>
@@ -152,6 +181,53 @@ export function BooksBrowser({ categories }: { categories: Category[] }) {
         </div>
       </section>
 
+      {/* Toolbar: language filter, sort, browse-by-author */}
+      <section className="px-5 mt-4">
+        <div className="w-[70%] mx-auto flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex rounded-full bg-white border border-gray-200 p-1 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+              {LANG_TABS.map((tab) => {
+                const active = lang === tab.value;
+                return (
+                  <button
+                    key={tab.value || "all"}
+                    type="button"
+                    onClick={() => setLang(tab.value || null)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                      "arabic" in tab && tab.arabic
+                        ? "font-[family-name:var(--font-amiri)] text-base leading-none"
+                        : ""
+                    } ${
+                      active
+                        ? "bg-teal-700 text-white"
+                        : "text-teal-900 hover:bg-teal-50"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              aria-label="Sort search results"
+              className="rounded-full bg-white border border-gray-200 px-4 py-2 text-sm font-semibold text-teal-900 shadow-[0_2px_8px_rgba(0,0,0,0.06)] outline-none cursor-pointer hover:border-teal-700/40 focus:ring-2 focus:ring-teal-700/15 transition-colors"
+            >
+              <option value="default">Default</option>
+              <option value="newest">Newest</option>
+              <option value="title">Title A–Z</option>
+            </select>
+          </div>
+          <Link
+            href="/books/authors"
+            className="text-sm font-semibold text-teal-700 hover:text-teal-900 transition-colors"
+          >
+            Browse by author →
+          </Link>
+        </div>
+      </section>
+
       {/* Results or categories */}
       <section className="py-8 pb-20 md:pb-24 px-5">
         {searching ? (
@@ -172,35 +248,12 @@ export function BooksBrowser({ categories }: { categories: Category[] }) {
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-7xl mx-auto fade-in-up"
             >
               {results.map((book) => (
-                <Link
+                <BookCard
                   key={book.id}
+                  book={book}
                   href={`/books/${book.categorySlug}/${book.slug}`}
-                  className="group bg-white rounded-2xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_24px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-200"
-                >
-                  <div className="relative aspect-[2/3] bg-teal-50 overflow-hidden">
-                    {book.cover_url ? (
-                      <Image
-                        src={book.cover_url}
-                        alt={book.title}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm p-2 text-center">
-                        {book.title}
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <h3 className="text-sm font-semibold text-teal-900 line-clamp-2 group-hover:text-teal-700 transition-colors">
-                      {book.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                      {book.author}
-                    </p>
-                  </div>
-                </Link>
+                  readHref={`/read/${book.slug}`}
+                />
               ))}
             </div>
           )
@@ -209,7 +262,7 @@ export function BooksBrowser({ categories }: { categories: Category[] }) {
             {categories.map((cat) => (
               <Link
                 key={cat.id}
-                href={`/books/${cat.slug}`}
+                href={`/books/${cat.slug}${categoryQuery}`}
                 className="group w-[calc(50%-0.5rem)] sm:w-[230px] h-[58px] bg-white rounded-2xl flex items-center justify-center text-center font-[family-name:var(--font-roboto)] text-[17px] font-bold text-teal-900 shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_24px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-200"
               >
                 <span className="group-hover:text-teal-700 transition-colors px-2">

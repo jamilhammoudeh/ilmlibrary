@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBookBySlug } from "@/lib/queries";
+import { isArabicBook } from "@/lib/arabic";
 import { ContentHeader } from "@/components/content-header";
 import { ShareButton } from "@/components/share-button";
 import { AddToListButton } from "@/components/add-to-list-button";
@@ -35,6 +36,17 @@ export default async function BookDetailPage({
   const { slug, bookSlug } = await params;
   const book = await getBook(bookSlug);
   if (!book) notFound();
+
+  const arabic = isArabicBook(book);
+  const showSource = Boolean(book.source && book.source_url && book.source !== "legacy");
+  let sourceHost: string | null = null;
+  if (showSource && book.source_url) {
+    try {
+      sourceHost = new URL(book.source_url).hostname;
+    } catch {
+      sourceHost = book.source_url;
+    }
+  }
 
   return (
     <>
@@ -70,8 +82,18 @@ export default async function BookDetailPage({
           </div>
 
           {/* Details */}
-          <div className="flex-1 text-center md:text-left">
-            <h2 className="text-2xl font-bold text-teal-900 mb-4 leading-tight">
+          <div
+            className={`flex-1 text-center ${arabic ? "md:text-right" : "md:text-left"}`}
+            dir={arabic ? "rtl" : undefined}
+            lang={arabic ? "ar" : undefined}
+          >
+            <h2
+              className={`font-bold text-teal-900 mb-4 ${
+                arabic
+                  ? "text-3xl font-[family-name:var(--font-amiri)] leading-snug"
+                  : "text-2xl leading-tight"
+              }`}
+            >
               {book.title}
             </h2>
 
@@ -83,6 +105,31 @@ export default async function BookDetailPage({
                 <strong>Translator:</strong> {book.translator}
               </p>
             )}
+
+            {/* Metadata pills */}
+            <div className="flex flex-wrap items-center gap-2 mt-3 mb-4 justify-center md:justify-start">
+              <span
+                className={`inline-flex items-center rounded-full bg-teal-50 border border-teal-900/10 text-teal-900 font-semibold px-3 py-1 ${
+                  arabic ? "font-[family-name:var(--font-amiri)] text-sm" : "text-xs"
+                }`}
+              >
+                {arabic ? "العربية" : "English"}
+              </span>
+              {book.pages != null && (
+                <span
+                  className={`inline-flex items-center rounded-full bg-teal-50 border border-teal-900/10 text-teal-900 font-semibold px-3 py-1 ${
+                    arabic ? "font-[family-name:var(--font-amiri)] text-sm" : "text-xs"
+                  }`}
+                >
+                  {arabic ? `${book.pages} صفحة` : `${book.pages} pages`}
+                </span>
+              )}
+              {book.published_year != null && (
+                <span className="inline-flex items-center rounded-full bg-teal-50 border border-teal-900/10 text-teal-900 text-xs font-semibold px-3 py-1">
+                  {book.published_year}
+                </span>
+              )}
+            </div>
 
             {book.description && (
               <p className="text-lg text-gray-600 leading-relaxed mt-4 mb-6">
@@ -110,6 +157,21 @@ export default async function BookDetailPage({
               />
               <AddToListButton bookId={book.id} />
             </div>
+
+            {showSource && book.source_url && (
+              <p className="mt-4 text-sm text-gray-500">
+                <span className="font-[family-name:var(--font-amiri)]" lang="ar">المصدر</span>
+                {" / Source: "}
+                <a
+                  href={book.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="text-teal-700 hover:text-teal-900 underline underline-offset-2 transition-colors"
+                >
+                  {sourceHost} <span aria-hidden="true">↗</span>
+                </a>
+              </p>
+            )}
           </div>
         </div>
       </section>

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X, Bookmark } from "lucide-react";
 
-const navLinks = [
+const navLinks: { href: string; label: string; arabic?: boolean }[] = [
   { href: "/books", label: "Books" },
   { href: "/quran", label: "Quran" },
   { href: "/duas", label: "Duas" },
@@ -14,6 +14,7 @@ const navLinks = [
   { href: "/why-islam", label: "Why Islam" },
   { href: "/guides", label: "Islamic Guides" },
   { href: "/wisdom", label: "Wisdom" },
+  { href: "/arabic", label: "العربية", arabic: true },
   { href: "/donate", label: "Donate" },
   { href: "/about", label: "About" },
 ];
@@ -28,8 +29,6 @@ export function Navbar() {
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
-
-  if (isAdmin) return null;
 
   // Close on Escape + lock body scroll
   useEffect(() => {
@@ -47,6 +46,8 @@ export function Navbar() {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  if (isAdmin) return null;
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
@@ -81,7 +82,12 @@ export function Navbar() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`relative px-3 py-2 text-base font-bold text-white transition-colors after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-0.5 after:bg-white after:transition-transform after:origin-center ${
+                  lang={link.arabic ? "ar" : undefined}
+                  className={`relative px-3 py-2 font-bold text-white transition-colors after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-0.5 after:bg-white after:transition-transform after:origin-center ${
+                    link.arabic
+                      ? "text-lg font-[family-name:var(--font-amiri)]"
+                      : "text-base"
+                  } ${
                     isActive(link.href)
                       ? "after:scale-x-100"
                       : "after:scale-x-0 hover:after:scale-x-100"
@@ -172,7 +178,12 @@ export function Navbar() {
             >
               <Link
                 href={link.href}
-                className={`block px-4 py-3 rounded-lg text-base font-semibold transition-colors ${
+                lang={link.arabic ? "ar" : undefined}
+                className={`block px-4 py-3 rounded-lg font-semibold transition-colors ${
+                  link.arabic
+                    ? "text-lg font-[family-name:var(--font-amiri)]"
+                    : "text-base"
+                } ${
                   isActive(link.href)
                     ? "bg-teal-800 text-white"
                     : "text-teal-50 active:bg-teal-800"

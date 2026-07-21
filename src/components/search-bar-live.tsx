@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { GlyphText } from "@/components/glyph-text";
+import { hasArabicChars } from "@/lib/arabic";
 
 type ResultType = "book" | "lecture" | "khutba" | "dua" | "wisdom" | "guide";
 
@@ -327,6 +328,8 @@ export function SearchBarLive({
               >
                 {results.map((r, i) => {
                   const Icon = TYPE_ICON[r.type];
+                  const arabicTitle =
+                    r.type === "book" && hasArabicChars(r.title);
                   return (
                     <li key={r.id} role="option" aria-selected={activeIndex === i}>
                       <Link
@@ -366,7 +369,15 @@ export function SearchBarLive({
                           >
                             {r.type}
                           </span>
-                          <span className="block text-sm font-medium text-gray-900 line-clamp-1">
+                          <span
+                            dir={arabicTitle ? "rtl" : undefined}
+                            lang={arabicTitle ? "ar" : undefined}
+                            className={`block text-sm font-medium text-gray-900 line-clamp-1 ${
+                              arabicTitle
+                                ? "font-[family-name:var(--font-amiri)]"
+                                : ""
+                            }`}
+                          >
                             <GlyphText>{r.title}</GlyphText>
                           </span>
                           {r.subtitle && (

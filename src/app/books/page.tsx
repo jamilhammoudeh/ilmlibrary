@@ -1,60 +1,27 @@
 import { BooksBrowser } from "@/components/books-browser";
-import { getCategories as getCategoriesQuery } from "@/lib/queries";
+import { sortCategories } from "@/lib/category-order";
+import { getCategories } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
-
-// Category order from the legacy site. Matching is keyword-based (lowercased
-// `includes`) so small naming differences in the DB still sort correctly.
-const CATEGORY_ORDER = [
-  "aqeedah",
-  "quran",
-  "hadith",
-  "jurisprudence",
-  "arabic",
-  "history",
-  "hajj",
-  "etiquette",
-  "healing",
-  "death",
-  "family",
-  "new",
-  "brother",
-  "sister",
-  "youth",
-  "dawah",
-  "scholar",
-  "knowledge",
-  "economic",
-  "fatwa",
-  "deviated",
-  "biograph",
-];
-
-function rankCategory(name: string) {
-  const n = name.toLowerCase();
-  for (let i = 0; i < CATEGORY_ORDER.length; i++) {
-    if (n.includes(CATEGORY_ORDER[i])) return i;
-  }
-  return CATEGORY_ORDER.length;
-}
-
-async function getCategories() {
-  const cats = await getCategoriesQuery({ contentType: "book" });
-  return [...cats].sort((a, b) => {
-    const ra = rankCategory(a.name);
-    const rb = rankCategory(b.name);
-    if (ra !== rb) return ra - rb;
-    return a.name.localeCompare(b.name);
-  });
-}
 
 export const metadata = {
   title: "Books",
   description: "Browse 1000+ Islamic books across 22 categories",
 };
 
-export default async function BooksPage() {
-  const categories = await getCategories();
+export default async function BooksPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string; sort?: string }>;
+}) {
+  const [{ lang, sort }, categories] = await Promise.all([
+    searchParams,
+    getCategories({ contentType: "book" }).then(sortCategories),
+  ]);
+
+  const initialLang = lang === "en" || lang === "ar" ? lang : "";
+  const initialSort =
+    sort === "newest" || sort === "title" ? sort : "default";
 
   return (
     <>
@@ -68,7 +35,11 @@ export default async function BooksPage() {
         </p>
       </section>
 
-      <BooksBrowser categories={categories} />
+      <BooksBrowser
+        categories={categories}
+        initialLang={initialLang}
+        initialSort={initialSort}
+      />
     </>
   );
 }
