@@ -29,9 +29,8 @@
     }
   ],
   "vars": {
-    // Filled in when the Cloudflare Access app is created (Phase 1d/1f).
-    "CF_ACCESS_TEAM_DOMAIN": "",
-    "CF_ACCESS_AUD": "",
+    "CF_ACCESS_TEAM_DOMAIN": "summer-tree-64a0.cloudflareaccess.com",
+    "CF_ACCESS_AUD": "4ca480d0d10d1d58a856b32fd7080a7360bee3c0b671fb26360724be63b1af5e",
     "FILES_PUBLIC_URL": "https://files.ilmlibrary.org"
   },
   "routes": [
