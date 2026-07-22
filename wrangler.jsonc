@@ -34,12 +34,10 @@
     "CF_ACCESS_AUD": "",
     "FILES_PUBLIC_URL": "https://files.ilmlibrary.org"
   },
-  // Custom-domain routes are enabled at DNS cutover — until then the worker
-  // serves only on its workers.dev URL while Vercel keeps serving production.
-  // "routes": [
-  //   { "pattern": "www.ilmlibrary.org", "custom_domain": true },
-  //   { "pattern": "ilmlibrary.org", "custom_domain": true }
-  // ],
+  "routes": [
+    { "pattern": "www.ilmlibrary.org", "custom_domain": true },
+    { "pattern": "ilmlibrary.org", "custom_domain": true }
+  ],
   "observability": {
     "enabled": true
   }
