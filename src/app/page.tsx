@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { DuaSlideshow } from "@/components/dua-slideshow";
 import { SearchBarLive } from "@/components/search-bar-live";
-import { RecentlyRead } from "@/components/recently-read";
 import { BookGrid } from "@/components/book-grid";
 import { LanguageToggle } from "@/components/language-toggle";
 import { getCategories, getBooksPage } from "@/lib/queries";
@@ -97,11 +96,6 @@ export default async function HomePage({
           ))}
         </div>
       </section>
-
-      {/* Continue Reading */}
-      <div className="mt-8">
-        <RecentlyRead />
-      </div>
 
       {/* New in the Library */}
       <section className="max-w-[1300px] mx-auto px-5 mt-6 md:mt-8 pb-20">
