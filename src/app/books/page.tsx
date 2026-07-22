@@ -27,6 +27,13 @@ export default async function BooksPage({
     <>
       {/* Hero / page title */}
       <section className="bg-[#f0f0f0] pt-8 md:pt-10 pb-3 px-5 text-center fade-in-up">
+        <p
+          className="text-[20px] md:text-[26px] font-[family-name:var(--font-amiri)] text-teal-700 leading-none mb-2"
+          lang="ar"
+          dir="rtl"
+        >
+          الكتب الإسلامية
+        </p>
         <h1 className="text-[28px] sm:text-[38px] md:text-[48px] font-bold font-[family-name:var(--font-playfair)] text-teal-900 leading-[1.1] mb-2">
           Explore Different Book Categories
         </h1>

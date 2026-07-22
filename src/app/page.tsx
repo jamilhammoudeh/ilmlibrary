@@ -47,6 +47,13 @@ export default async function HomePage({
     <>
       {/* Hero */}
       <section className="pt-10 md:pt-14 pb-4 px-5 text-center">
+        <p
+          className="text-[26px] md:text-[32px] font-[family-name:var(--font-amiri)] text-teal-700 leading-none mb-2"
+          lang="ar"
+          dir="rtl"
+        >
+          مكتبة العلم
+        </p>
         <h1 className="text-[44px] sm:text-[60px] md:text-[80px] font-bold font-[family-name:var(--font-playfair)] text-teal-900 leading-none mb-2">
           Ilm Library
         </h1>
