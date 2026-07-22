@@ -13,6 +13,8 @@ type Category = {
   name: string;
   slug: string;
   name_ar?: string | null;
+  count_en?: number;
+  count_ar?: number;
 };
 
 type BookResult = {
@@ -27,14 +29,13 @@ type BookResult = {
 };
 
 const LANG_TABS = [
-  { value: "", label: "All" },
   { value: "en", label: "English" },
   { value: "ar", label: "العربية", arabic: true },
 ] as const;
 
 export function BooksBrowser({
   categories,
-  initialLang = "",
+  initialLang = "en",
   initialSort = "default",
 }: {
   categories: Category[];
@@ -119,7 +120,7 @@ export function BooksBrowser({
   }, [trimmed, searching, lang, sort]);
 
   const hasQuery = query.length > 0;
-  const categoryQuery = lang ? `?lang=${lang}` : "";
+  const categoryQuery = lang === "ar" ? "?lang=ar" : "";
 
   return (
     <>
@@ -250,7 +251,16 @@ export function BooksBrowser({
           )
         ) : (
           <div className="flex flex-wrap justify-center gap-4 max-w-7xl mx-auto fade-in-up">
-            {categories.map((cat) => (
+            {categories
+              .filter((cat) =>
+                lang === "ar"
+                  ? (cat.count_ar ?? 1) > 0
+                  : lang === "en"
+                    ? (cat.count_en ?? 1) > 0
+                    : ((cat.count_en ?? 0) + (cat.count_ar ?? 0) > 0 ||
+                       (cat.count_en === undefined && cat.count_ar === undefined))
+              )
+              .map((cat) => (
               <Link
                 key={cat.id}
                 href={`/books/${cat.slug}${categoryQuery}`}

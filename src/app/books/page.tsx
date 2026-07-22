@@ -1,6 +1,6 @@
 import { BooksBrowser } from "@/components/books-browser";
 import { sortCategories } from "@/lib/category-order";
-import { getCategories } from "@/lib/queries";
+import { getCategories, getBookLangCounts } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -14,12 +14,22 @@ export default async function BooksPage({
 }: {
   searchParams: Promise<{ lang?: string; sort?: string }>;
 }) {
-  const [{ lang, sort }, categories] = await Promise.all([
+  const [{ lang, sort }, rawCategories, langCounts] = await Promise.all([
     searchParams,
     getCategories({ contentType: "book" }).then(sortCategories),
+    getBookLangCounts(),
   ]);
 
-  const initialLang = lang === "en" || lang === "ar" ? lang : "";
+  // Attach per-language counts so empty categories hide per selected language.
+  const countFor = (catId: string, l: string) =>
+    langCounts.find((c) => c.category_id === catId && c.language === l)?.n ?? 0;
+  const categories = rawCategories.map((c) => ({
+    ...c,
+    count_en: countFor(c.id, "en"),
+    count_ar: countFor(c.id, "ar"),
+  }));
+
+  const initialLang = lang === "ar" ? "ar" : "en";
   const initialSort =
     sort === "newest" || sort === "title" ? sort : "default";
 

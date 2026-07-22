@@ -2,7 +2,7 @@ import Link from "next/link";
 import { NewBooksCarousel } from "@/components/new-books-carousel";
 import { BookGrid } from "@/components/book-grid";
 import { CategoryChips } from "@/components/category-chips";
-import { getCategories, getNewBooks, getBooksPage } from "@/lib/queries";
+import { getCategories, getNewBooks, getBooksPage, getBookLangCounts } from "@/lib/queries";
 import { sortCategories } from "@/lib/category-order";
 import type { BookCardBook } from "@/components/book-card";
 
@@ -15,14 +15,20 @@ export const metadata = {
 };
 
 export default async function ArabicLibraryPage() {
-  const [allCategories, newBooks, browse] = await Promise.all([
+  const [allCategories, newBooks, browse, langCounts] = await Promise.all([
     getCategories({ contentType: "book", includeHidden: true }),
     getNewBooks(12, "ar"),
     getBooksPage({ lang: "ar", sort: "title", limit: 18 }),
+    getBookLangCounts(),
   ]);
 
   const catSlug = new Map(allCategories.map((c) => [c.id, c.slug]));
-  const visibleCategories = sortCategories(allCategories.filter((c) => !c.hidden));
+  const hasArabicBooks = new Set(
+    langCounts.filter((c) => c.language === "ar" && c.n > 0).map((c) => c.category_id)
+  );
+  const visibleCategories = sortCategories(
+    allCategories.filter((c) => !c.hidden && hasArabicBooks.has(c.id))
+  );
   const hrefFor = (b: BookCardBook & { category_id?: string | null }) =>
     `/books/${(b.category_id && catSlug.get(b.category_id)) || "uncategorized"}/${b.slug}?lang=ar`;
 

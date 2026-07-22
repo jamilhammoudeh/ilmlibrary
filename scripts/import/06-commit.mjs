@@ -151,8 +151,15 @@ for (const [i, rec] of todo.entries()) {
   if (!dryRun) {
     try {
       if (!state.pdf_uploaded) {
-        await r2Put(pdfKey, rec.local_pdf, "application/pdf");
-        state.pdf_uploaded = true;
+        // Files above wrangler's 300MiB cap are uploaded out-of-band
+        // (09-multipart-upload.mjs) — a live HEAD means already uploaded.
+        const head = await fetch(`${FILE_BASE}/${pdfKey}`, { method: "HEAD" }).catch(() => null);
+        if (head?.ok) {
+          state.pdf_uploaded = true;
+        } else {
+          await r2Put(pdfKey, rec.local_pdf, "application/pdf");
+          state.pdf_uploaded = true;
+        }
         saveCommitted();
       }
       if (hasCover && !state.cover_uploaded) {

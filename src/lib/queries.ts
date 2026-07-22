@@ -341,6 +341,19 @@ export async function getPages(opts?: { includeHidden?: boolean }): Promise<Page
   return fromDbRows<Page>("pages", results);
 }
 
+/** Book counts per category per language (for hiding empty categories). */
+export async function getBookLangCounts(): Promise<
+  { category_id: string; language: string; n: number }[]
+> {
+  const db = await getDb();
+  const { results } = await db
+    .prepare(
+      "SELECT category_id, language, COUNT(*) AS n FROM books WHERE category_id IS NOT NULL GROUP BY category_id, language"
+    )
+    .all<Row>();
+  return results as unknown as { category_id: string; language: string; n: number }[];
+}
+
 // ---------------------------------------------------------------------------
 // Sponsors
 // ---------------------------------------------------------------------------
