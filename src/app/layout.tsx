@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Source_Sans_3, Amiri, Playfair_Display, Scheherazade_New } from "next/font/google";
+import { Roboto, Amiri, Lora, Playfair_Display, Scheherazade_New } from "next/font/google";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { MainWrapper } from "@/components/main-wrapper";
@@ -8,11 +8,10 @@ import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import "./globals.css";
 
-const sourceSans = Source_Sans_3({
-  variable: "--font-body",
+const roboto = Roboto({
+  variable: "--font-roboto",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
+  weight: ["400", "700"],
 });
 
 const amiri = Amiri({
@@ -20,6 +19,12 @@ const amiri = Amiri({
   subsets: ["arabic", "latin"],
   weight: ["400", "700"],
   display: "swap",
+});
+
+const lora = Lora({
+  variable: "--font-lora",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const playfair = Playfair_Display({
@@ -80,7 +85,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${sourceSans.variable} ${amiri.variable} ${playfair.variable} ${scheherazade.variable}`}>
+    <html lang="en" className={`${roboto.variable} ${amiri.variable} ${lora.variable} ${playfair.variable} ${scheherazade.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#004d40" />
