@@ -49,6 +49,7 @@ const contentNavLinks: { href: string; label: string; icon: React.ComponentType<
   { href: "/admin/duas", label: "Duas", icon: HandHeart },
   { href: "/admin/wisdom", label: "Wisdom", icon: Quote },
   { href: "/admin/categories", label: "Categories", icon: FolderOpen },
+  { href: "/admin/sponsors", label: "Sponsors", icon: HandHeart },
 ];
 
 const pageTitles: Record<string, string> = {
@@ -64,6 +65,7 @@ const pageTitles: Record<string, string> = {
   "/admin/duas": "Duas",
   "/admin/wisdom": "Wisdom",
   "/admin/categories": "Categories",
+  "/admin/sponsors": "Sponsors",
 };
 
 type SidebarPage = Pick<Page, "id" | "slug" | "parent_id" | "title" | "sort_order" | "hidden">;

@@ -220,6 +220,7 @@ function BooksAdmin() {
         cover_url: editing.cover_url || null,
         pdf_url: editing.pdf_url || null,
         category_id: editing.category_id || null,
+        purchase_url: editing.purchase_url?.trim() || null,
       };
 
       if (isNew) {
@@ -907,6 +908,11 @@ function BooksAdmin() {
               label="Translator"
               value={editing.translator ?? ""}
               onChange={(e) => updateField("translator", e.target.value)}
+            />
+            <Field
+              label="Purchase link (affiliate URL for the print edition — shown as a buy button)"
+              value={editing.purchase_url ?? ""}
+              onChange={(e) => updateField("purchase_url", e.target.value)}
             />
             <Field
               label="Description"

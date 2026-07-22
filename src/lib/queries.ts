@@ -13,6 +13,7 @@ import type {
   Khutba,
   Lecture,
   Page,
+  Sponsor,
   Wisdom,
 } from "@/types/database";
 
@@ -338,6 +339,31 @@ export async function getPages(opts?: { includeHidden?: boolean }): Promise<Page
     .prepare(`SELECT * FROM pages${whereSql} ORDER BY sort_order, title COLLATE NOCASE`)
     .all<Row>();
   return fromDbRows<Page>("pages", results);
+}
+
+// ---------------------------------------------------------------------------
+// Sponsors
+// ---------------------------------------------------------------------------
+
+/** Active sponsors for a placement, respecting optional start/end windows. */
+export async function getActiveSponsors(
+  placement: "homepage" | "books",
+  limit = 4
+): Promise<Sponsor[]> {
+  const db = await getDb();
+  const now = new Date().toISOString();
+  const { results } = await db
+    .prepare(
+      `SELECT * FROM sponsors
+       WHERE active = 1
+         AND (placement = ? OR placement = 'both')
+         AND (starts_at IS NULL OR starts_at <= ?)
+         AND (ends_at IS NULL OR ends_at >= ?)
+       ORDER BY sort_order, created_at LIMIT ?`
+    )
+    .bind(placement, now, now, limit)
+    .all<Row>();
+  return fromDbRows<Sponsor>("sponsors", results);
 }
 
 // ---------------------------------------------------------------------------

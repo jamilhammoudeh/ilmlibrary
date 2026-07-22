@@ -33,7 +33,8 @@ export default async function BookCategoryPage({
 }) {
   const { slug } = await params;
   const { lang: langParam } = await searchParams;
-  const lang = langParam === "en" || langParam === "ar" ? langParam : undefined;
+  // Default to English — Arabic books appear only under the العربية tab.
+  const lang = langParam === "ar" ? "ar" : "en";
 
   const category = await getCategory(slug);
   if (!category) notFound();
@@ -68,7 +69,7 @@ export default async function BookCategoryPage({
       <section className="py-10 pb-20 md:pb-24 px-5">
         {showLanguageToggle && (
           <div className="flex justify-center mb-6">
-            <LanguageToggle current={lang ?? ""} basePath={`/books/${slug}`} />
+            <LanguageToggle current={lang} basePath={`/books/${slug}`} />
           </div>
         )}
 
@@ -76,15 +77,11 @@ export default async function BookCategoryPage({
           <EmptyState
             icon={<BookOpen size={28} />}
             title="No books yet"
-            message={
-              lang
-                ? `No ${lang === "ar" ? "Arabic" : "English"} books in this category yet. Try another language filter.`
-                : "Books for this category are being prepared. Check back soon."
-            }
+            message={`No ${lang === "ar" ? "Arabic" : "English"} books in this category yet.`}
           />
         ) : (
           <InfiniteBookGrid
-            key={lang ?? "all"}
+            key={lang}
             categoryId={category.id}
             categorySlug={slug}
             initialBooks={books}

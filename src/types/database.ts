@@ -35,6 +35,22 @@ export type Book = {
   title_alt: string | null; // transliterated/English title for Arabic books
   pages: number | null;
   published_year: number | null;
+  purchase_url: string | null; // affiliate/store link for the print edition
+  created_at: string;
+};
+
+export type Sponsor = {
+  id: string;
+  name: string;
+  tagline: string | null;
+  url: string;
+  image_url: string | null;
+  type: "business" | "book" | "publisher";
+  placement: "homepage" | "books" | "both";
+  active: boolean;
+  sort_order: number;
+  starts_at: string | null;
+  ends_at: string | null;
   created_at: string;
 };
 

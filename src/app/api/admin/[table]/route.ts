@@ -12,8 +12,13 @@ const TABLE_COLUMNS: Record<string, string[]> = {
   books: [
     "id", "title", "slug", "author", "translator", "description", "cover_url", "pdf_url",
     "category_id", "display_order", "language", "source", "source_url", "title_alt",
-    "pages", "published_year", "created_at",
+    "pages", "published_year", "purchase_url", "created_at",
   ],
+  sponsors: [
+    "id", "name", "tagline", "url", "image_url", "type", "placement", "active",
+    "sort_order", "starts_at", "ends_at", "created_at",
+  ],
+  content_clicks: ["id", "content_type", "content_id", "path", "visitor_id", "clicked_at"],
   lectures: ["id", "title", "slug", "speaker", "description", "audio_url", "video_url", "category_id", "created_at"],
   khutbas: ["id", "title", "slug", "speaker", "description", "audio_url", "video_url", "category_id", "created_at"],
   duas: ["id", "title", "arabic_text", "translation", "transliteration", "source", "category_id", "created_at"],
@@ -35,9 +40,10 @@ const TABLE_COLUMNS: Record<string, string[]> = {
   page_views: ["id", "path", "visited_at", "referrer", "visitor_id", "user_agent"],
 };
 
-const READ_ONLY_TABLES = new Set(["audit_log", "page_views"]);
+const READ_ONLY_TABLES = new Set(["audit_log", "page_views", "content_clicks"]);
 
 const RESOURCE_TYPE: Record<string, string> = {
+  sponsors: "sponsor",
   books: "book",
   lectures: "lecture",
   khutbas: "khutba",

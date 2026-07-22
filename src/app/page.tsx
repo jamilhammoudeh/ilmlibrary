@@ -6,6 +6,7 @@ import { RecentlyRead } from "@/components/recently-read";
 import { BookGrid } from "@/components/book-grid";
 import { LanguageToggle } from "@/components/language-toggle";
 import { getCategories, getBooksPage } from "@/lib/queries";
+import { SponsorStrip } from "@/components/sponsor-strip";
 import type { BookCardBook } from "@/components/book-card";
 
 export const dynamic = "force-dynamic";
@@ -27,12 +28,13 @@ export default async function HomePage({
   searchParams: Promise<{ lang?: string }>;
 }) {
   const { lang: rawLang } = await searchParams;
-  const lang = rawLang === "en" || rawLang === "ar" ? rawLang : "";
+  // English by default; Arabic books live behind the العربية tab.
+  const lang = rawLang === "ar" ? "ar" : "en";
 
   const [allCategories, browse] = await Promise.all([
     getCategories({ contentType: "book", includeHidden: true }),
     getBooksPage({
-      lang: lang || undefined,
+      lang,
       sort: "newest",
       limit: 12,
       withCount: false,
@@ -122,13 +124,18 @@ export default async function HomePage({
         )}
         <div className="text-center mt-8">
           <Link
-            href={lang ? `/books?lang=${lang}` : "/books"}
+            href={lang === "ar" ? "/books?lang=ar" : "/books"}
             className="inline-block px-7 py-3 rounded-full bg-teal-700 text-white font-semibold hover:bg-teal-800 shadow-[0_4px_12px_rgba(0,77,64,0.25)] hover:shadow-[0_8px_20px_rgba(0,77,64,0.3)] transition-all"
           >
             Browse all books
           </Link>
         </div>
       </section>
+
+      {/* Sponsors (renders nothing until sponsors exist) */}
+      <div className="pb-16 -mt-6">
+        <SponsorStrip placement="homepage" />
+      </div>
     </>
   );
 }

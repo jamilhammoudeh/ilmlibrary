@@ -147,6 +147,16 @@ export default async function BookDetailPage({
                   Read Book
                 </Link>
               )}
+              {book.purchase_url && (
+                <a
+                  href={`/api/out?type=purchase&id=${book.id}`}
+                  target="_blank"
+                  rel="sponsored noopener"
+                  className="inline-block bg-white text-teal-900 border-2 border-teal-900 hover:bg-teal-50 font-bold text-lg px-6 py-2 rounded-full transition-all duration-200 hover:-translate-y-0.5"
+                >
+                  Get the printed copy ↗
+                </a>
+              )}
               <ShareButton title={book.title} text={`Check out "${book.title}" on Ilm Library`} />
               <BookmarkButton
                 id={book.id}

@@ -4,8 +4,9 @@ import Link from "next/link";
 // each tab is a link that sets ?lang= on the given base path, preserving any
 // extra params passed in.
 
+// English is the default view; Arabic books live behind the العربية tab so
+// they never flood the English sections.
 const TABS = [
-  { value: "", label: "All" },
   { value: "en", label: "English" },
   { value: "ar", label: "العربية", arabic: true },
 ] as const;
