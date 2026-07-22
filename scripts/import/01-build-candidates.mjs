@@ -51,7 +51,7 @@ import { makeFetcher } from "./lib/http.mjs";
 const IMPORT_DIR = dirname(fileURLToPath(import.meta.url));
 const SEEDS = join(IMPORT_DIR, "seeds");
 const STATE = join(IMPORT_DIR, "state");
-const CAP = 400; // pilot-round cap per source
+const CAP = Number(process.argv.find((a) => a.startsWith("--cap="))?.split("=")[1] ?? 0) || 400;
 // Optional per-author cap (--max-per-author=N) — archive.org creator searches
 // for famous authors return hundreds of near-duplicate editions otherwise.
 const MAX_PER_AUTHOR = Number(process.argv.find((a) => a.startsWith("--max-per-author="))?.split("=")[1] ?? 0) || 0;

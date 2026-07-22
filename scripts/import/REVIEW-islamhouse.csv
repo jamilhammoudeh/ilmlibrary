@@ -5,9 +5,9 @@ x,ok,هذا الحبيب محمد رسول الله صلى الله عليه و�
 x,ok,من مشاهير المجددين في الإسلام [ ابن تيمية ومحمد بن عبد الوهاب رحمهما الله ],mn mshahyr almjddyn fy alaslam abn tymyh wmhmd bn abd alwhab rhmhma allh,Salih al-Fawzan,صالح بن فوزان الفوزان,knowledge,0.3,,https://islamhouse.com/ar/books/117072/
 x,ok,الفرق بين النصيحة والتعيير,alfrq byn alnsyhh waltayyr,Ibn Rajab al-Hanbali,ابن رجب الحنبلي,knowledge,0.1,,https://islamhouse.com/ar/books/116947/
 x,ok,مصباح الظلام في الرد على من كذب الشيخ الإمام ونسبه إلى تكفير أهل الإيمان والإسلام,msbah alzlam fy alrd aly mn kdhb alshykh alamam wnsbh aly tkfyr ahl alayman walaslam,Abd al-Rahman ibn Hasan Al al-Shaykh,عبد الرحمن بن حسن آل الشيخ,knowledge,2.6,,https://islamhouse.com/ar/books/77386/
-,review,قطوف من الشمائل المحمدية والأخلاق النبوية والآداب الإسلامية,qtwf mn alshmayl almhmdyh walakhlaq alnbwyh waladab alaslamyh,Muhammad ibn Jamil Zeno,محمد بن جميل زينو,knowledge,10,,https://islamhouse.com/ar/books/57659/
+x,review,قطوف من الشمائل المحمدية والأخلاق النبوية والآداب الإسلامية,qtwf mn alshmayl almhmdyh walakhlaq alnbwyh waladab alaslamyh,Muhammad ibn Jamil Zeno,محمد بن جميل زينو,knowledge,10,,https://islamhouse.com/ar/books/57659/
 x,ok,وسيلة الحصول إلى مهمات الأصول,wsylh alhswl aly mhmat alaswl,Hafiz al-Hakami,حافظ بن أحمد الحكمي,knowledge,0.4,,https://islamhouse.com/ar/books/2479/
-,review,سلم الوصول إلى مباحث علم الأصول,slm alwswl aly mbahth alm alaswl,Hafiz al-Hakami,حافظ بن أحمد الحكمي,knowledge,0.8,,https://islamhouse.com/ar/books/2478/
+x,review,سلم الوصول إلى مباحث علم الأصول,slm alwswl aly mbahth alm alaswl,Hafiz al-Hakami,حافظ بن أحمد الحكمي,knowledge,0.8,,https://islamhouse.com/ar/books/2478/
 ,review,الأذكار النووية,aladhkar alnwwyh,al-Nawawi,النووي,knowledge,14.8,,https://islamhouse.com/ar/books/2431/
 x,ok,عقيدة المؤمن,aqydh almwmn,Abu Bakr al-Jaza'iri,أبو بكر جابر الجزائري,knowledge,12.8,,https://islamhouse.com/ar/books/2428/
 x,ok,الملخص الفقهي,almlkhs alfqhy,Salih al-Fawzan,صالح بن فوزان الفوزان,knowledge,15.5,,https://islamhouse.com/ar/books/2089/
@@ -23,7 +23,7 @@ x,ok,الدرة المختصرة في محاسن الدين الإسلامي,ald
 x,ok,التحذير من المدارس الأجنبية,althdhyr mn almdars alajnbyh,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,quran-studies,8.1,,https://islamhouse.com/ar/books/205548/
 x,ok,المدارس العالمية الأجنبية الاستعمارية تاريخها ومخاطرها,almdars alaalmyh alajnbyh alastamaryh tarykhha wmkhatrha,Bakr Abu Zayd,بكر بن عبد الله أبو زيد,islamic-history,0.5,,https://islamhouse.com/ar/books/117118/
 x,ok,التمسك بالقرآن الكريم وأثره في حياة المسلمين,altmsk balqran alkrym wathrh fy hyah almslmyn,Muhammad al-Amin al-Shinqiti,محمد الأمين الشنقيطي,quran-studies,0.9,,https://islamhouse.com/ar/books/422806/
-,review,فضائل القرآن,fdayl alqran,Muhammad ibn Abd al-Wahhab,محمد بن عبد الوهاب,quran-studies,4,,https://islamhouse.com/ar/books/264162/
+x,review,فضائل القرآن,fdayl alqran,Muhammad ibn Abd al-Wahhab,محمد بن عبد الوهاب,quran-studies,4,,https://islamhouse.com/ar/books/264162/
 x,ok,عظمة القرآن الكريم وتعظيمه وأثره في النفوس في ضوء الكتاب والسنة,azmh alqran alkrym wtazymh wathrh fy alnfws fy dw alktab walsnh,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,quran-studies,1.7,,https://islamhouse.com/ar/books/193666/
 x,ok,كتاب فضائل القرآن,ktab fdayl alqran,Ibn Kathir,ابن كثير,quran-studies,4.9,,https://islamhouse.com/ar/books/141451/
 x,ok,تأملات في قوله تعالى: {ورضوان من الله أكبر},tamlat fy qwlh taaly wrdwan mn allh akbr,Abd al-Razzaq al-Badr,عبد الرزاق بن عبد المحسن البدر,quran-studies,1.5,,https://islamhouse.com/ar/books/2825357/
@@ -41,12 +41,12 @@ x,ok,من أحكام سورة المائدة,mn ahkam swrh almaydh,Sa'id ibn Ali
 x,ok,مختصر تفسير سورة الأنفال,mkhtsr tfsyr swrh alanfal,Muhammad ibn Abd al-Wahhab,محمد بن عبد الوهاب,quran-studies,0.4,,https://islamhouse.com/ar/books/264185/
 x,ok,تفسير آيات من القرآن الكريم,tfsyr ayat mn alqran alkrym,Muhammad ibn Abd al-Wahhab,محمد بن عبد الوهاب,quran-studies,5.4,,https://islamhouse.com/ar/books/264163/
 x,ok,تيسير اللطيف المنان في خلاصة تفسير القرآن,tysyr alltyf almnan fy khlash tfsyr alqran,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,quran-studies,10,,https://islamhouse.com/ar/books/117071/
-,review,أيسر التفاسير لكلام العلي الكبير,aysr altfasyr lklam alaly alkbyr,Abu Bakr al-Jaza'iri,أبو بكر جابر الجزائري,quran-studies,18.2,,https://islamhouse.com/ar/books/2624/
-,review,تفسير ابن كثير [ تفسير القرآن العظيم ],tfsyr abn kthyr tfsyr alqran alazym,Ibn Kathir,ابن كثير,quran-studies,13.5,,https://islamhouse.com/ar/books/2458/
+x,review,أيسر التفاسير لكلام العلي الكبير,aysr altfasyr lklam alaly alkbyr,Abu Bakr al-Jaza'iri,أبو بكر جابر الجزائري,quran-studies,18.2,,https://islamhouse.com/ar/books/2624/
+x,review,تفسير ابن كثير [ تفسير القرآن العظيم ],tfsyr abn kthyr tfsyr alqran alazym,Ibn Kathir,ابن كثير,quran-studies,13.5,,https://islamhouse.com/ar/books/2458/
 x,ok,تفسير وبيان لأعظم سورة في القرآن,tfsyr wbyan laazm swrh fy alqran,Muhammad ibn Jamil Zeno,محمد بن جميل زينو,quran-studies,2.1,,https://islamhouse.com/ar/books/1893/
 x,ok,حديث الصباح,hdyth alsbah,Abd al-Aziz ibn Baz,عبد العزيز بن باز,quran-studies,17.5,,https://islamhouse.com/ar/books/2828164/
 x,ok,دفع إيهام الاضطراب عن آيات الكتاب,dfa ayham aladtrab an ayat alktab,Muhammad al-Amin al-Shinqiti,محمد الأمين الشنقيطي,quran-studies,4.4,,https://islamhouse.com/ar/books/2827175/
-,review,العذب النمير في مجالس الشنقيطي في التفسير,aladhb alnmyr fy mjals alshnqyty fy altfsyr,Muhammad al-Amin al-Shinqiti,محمد الأمين الشنقيطي,quran-studies,10.9,,https://islamhouse.com/ar/books/2826711/
+x,review,العذب النمير في مجالس الشنقيطي في التفسير,aladhb alnmyr fy mjals alshnqyty fy altfsyr,Muhammad al-Amin al-Shinqiti,محمد الأمين الشنقيطي,quran-studies,10.9,,https://islamhouse.com/ar/books/2826711/
 x,ok,حديث المساء من الدروس والمحاضرات والتعليقات,hdyth almsa mn aldrws walmhadrat waltalyqat,Abd al-Aziz ibn Baz,عبد العزيز بن باز,quran-studies,9,,https://islamhouse.com/ar/books/2801506/
 x,ok,نداءات الرحمن لأهل الإيمان,ndaat alrhmn lahl alayman,Abu Bakr al-Jaza'iri,أبو بكر جابر الجزائري,quran-studies,10.6,,https://islamhouse.com/ar/books/364378/
 x,ok,تدبر القرآن,tdbr alqran,Salih al-Fawzan,صالح بن فوزان الفوزان,quran-studies,3.2,,https://islamhouse.com/ar/books/314800/
@@ -57,7 +57,7 @@ x,ok,تفسير السعدي,tfsyr alsady,Abd al-Rahman al-Sa'di,عبد الرح
 x,ok,شرح مقدمة في أصول التفسير لابن تيمية,shrh mqdmh fy aswl altfsyr labn tymyh,Salih Al al-Shaykh,صالح بن عبد العزيز آل الشيخ,quran-studies,3.6,,https://islamhouse.com/ar/books/420069/
 x,ok,القواعد الحسان المتعلقة بتفسير القرآن,alqwaad alhsan almtalqh btfsyr alqran,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,quran-studies,0.7,,https://islamhouse.com/ar/books/205542/
 x,ok,كيف يجب أن نفسر القرآن الكريم؟,kyf yjb an nfsr alqran alkrym,Muhammad Nasir al-Din al-Albani,محمد ناصر الدين الألباني,quran-studies,0.1,,https://islamhouse.com/ar/books/2073/
-,review,مقدمة في أصول التفسير,mqdmh fy aswl altfsyr,Ibn Taymiyyah,ابن تيمية,quran-studies,6.6,,https://islamhouse.com/ar/books/2832698/
+x,review,مقدمة في أصول التفسير,mqdmh fy aswl altfsyr,Ibn Taymiyyah,ابن تيمية,quran-studies,6.6,,https://islamhouse.com/ar/books/2832698/
 x,ok,مختصر أخلاق حملة القرآن,mkhtsr akhlaq hmlh alqran,al-Ajurri,الآجري,quran-studies,1,,https://islamhouse.com/ar/books/2829485/
 x,ok,بدع القراء القديمة والمعاصرة,bda alqra alqdymh walmaasrh,Bakr Abu Zayd,بكر بن عبد الله أبو زيد,quran-studies,0.8,,https://islamhouse.com/ar/books/79741/
 x,ok,الفوائد,alfwayd,Ibn al-Qayyim,ابن قيم الجوزية,hadith-studies,7.5,,https://islamhouse.com/ar/books/2841150/
@@ -72,7 +72,7 @@ x,ok,شرح حديث جبريل عليه السلام,shrh hdyth jbryl alyh alsl
 ,review,أحاديث السلسلة الذهبية,ahadyth alslslh aldhhbyh,Ibn Hajar al-Asqalani,ابن حجر العسقلاني,hadith-studies,0.4,,https://islamhouse.com/ar/books/407344/
 x,ok,الأحاديث الواردة في قراءة سورة الكهف يوم الجمعة - دراسة حديثية,alahadyth alwardh fy qrah swrh alkhf ywm aljmah drash hdythyh,Salih al-Fawzan,صالح بن فوزان الفوزان,hadith-studies,0.5,,https://islamhouse.com/ar/books/396402/
 ,review,المطالب العالية بزوائد المسانيد الثمانية,almtalb alaalyh bzwayd almsanyd althmanyh,Ibn Hajar al-Asqalani,ابن حجر العسقلاني,hadith-studies,12.6,,https://islamhouse.com/ar/books/388662/
-,review,الجامع الصحيح مما ليس في الصحيحين,aljama alshyh mma lys fy alshyhyn,Muqbil ibn Hadi al-Wadi'i,مقبل بن هادي الوادعي,hadith-studies,5.9,,https://islamhouse.com/ar/books/380514/
+x,review,الجامع الصحيح مما ليس في الصحيحين,aljama alshyh mma lys fy alshyhyn,Muqbil ibn Hadi al-Wadi'i,مقبل بن هادي الوادعي,hadith-studies,5.9,,https://islamhouse.com/ar/books/380514/
 x,ok,الصحيح المسند من دلائل النبوة,alshyh almsnd mn dlayl alnbwh,Muqbil ibn Hadi al-Wadi'i,مقبل بن هادي الوادعي,hadith-studies,10.5,,https://islamhouse.com/ar/books/380508/
 x,ok,شرح حديث سيد الاستغفار,shrh hdyth syd alastghfar,Abd al-Razzaq al-Badr,عبد الرزاق بن عبد المحسن البدر,hadith-studies,0.9,,https://islamhouse.com/ar/books/344684/
 x,ok,تأملات في مماثلة المؤمن للنخلة,tamlat fy mmathlh almwmn llnkhlh,Abd al-Razzaq al-Badr,عبد الرزاق بن عبد المحسن البدر,hadith-studies,0.6,,https://islamhouse.com/ar/books/316844/
@@ -83,14 +83,14 @@ x,ok,سنن الترمذي,snn altrmdhy,al-Tirmidhi,محمد بن عيسى ال�
 x,ok,سنن أبي داود,snn aby dawd,Abu Dawud al-Sijistani,أبو داود السجستاني,hadith-studies,24.2,,https://islamhouse.com/ar/books/140678/
 x,ok,صحيح مسلم,shyh mslm,Imam Muslim,مسلم بن الحجاج,hadith-studies,46.4,,https://islamhouse.com/ar/books/140676/
 ,review,رياض الصالحين,ryad alsalhyn,al-Nawawi,النووي,hadith-studies,11.2,,https://islamhouse.com/ar/books/111275/
-,review,بهجة قلوب الأبرار وقرة عيون الأخيار في شرح جوامع الأخبار,bhjh qlwb alabrar wqrh aywn alakhyar fy shrh jwama alakhbar,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,hadith-studies,54.8,,https://islamhouse.com/ar/books/79493/
+x,review,بهجة قلوب الأبرار وقرة عيون الأخيار في شرح جوامع الأخبار,bhjh qlwb alabrar wqrh aywn alakhyar fy shrh jwama alakhbar,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,hadith-studies,54.8,,https://islamhouse.com/ar/books/79493/
 x,ok,صحيح البخاري,shyh albkhary,Imam al-Bukhari,محمد بن إسماعيل البخاري,hadith-studies,37.2,,https://islamhouse.com/ar/books/72992/
 x,ok,أحاديث عشر ذي الحجة وأيام التشريق أحكام وآداب ويليها رسالة في أحاديث شهر الله المحرم,ahadyth ashr dhy alhjh wayam altshryq ahkam wadab wylyha rsalh fy ahadyth shhr allh almhrm,Salih al-Fawzan,صالح بن فوزان الفوزان,hadith-studies,0.8,,https://islamhouse.com/ar/books/2154/
 x,ok,جامع العلوم والحكم في شرح خمسين حديثا من جوامع الكلم,jama alalwm walhkm fy shrh khmsyn hdytha mn jwama alklm,Ibn Rajab al-Hanbali,ابن رجب الحنبلي,hadith-studies,16.6,,https://islamhouse.com/ar/books/2097/
-,review,مسند الإمام أحمد,msnd alamam ahmd,Imam Ahmad ibn Hanbal,أحمد بن حنبل,hadith-studies,11.1,,https://islamhouse.com/ar/books/480588/
+x,review,مسند الإمام أحمد,msnd alamam ahmd,Imam Ahmad ibn Hanbal,أحمد بن حنبل,hadith-studies,11.1,,https://islamhouse.com/ar/books/480588/
 x,ok,الأدب المفرد,aladb almfrd,Imam al-Bukhari,محمد بن إسماعيل البخاري,hadith-studies,9.9,,https://islamhouse.com/ar/books/469536/
-,review,تهذيب سنن أبي داود وإيضاح علله ومشكلاته,thdhyb snn aby dawd waydah allh wmshklath,Ibn al-Qayyim,ابن قيم الجوزية,hadith-studies,8.9,,https://islamhouse.com/ar/books/2831718/
-,review,الفوائد المجنية من التعليقات البازية على صحيح البخاري,alfwayd almjnyh mn altalyqat albazyh aly shyh albkhary,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,hadith-studies,22,,https://islamhouse.com/ar/books/2824521/
+x,review,تهذيب سنن أبي داود وإيضاح علله ومشكلاته,thdhyb snn aby dawd waydah allh wmshklath,Ibn al-Qayyim,ابن قيم الجوزية,hadith-studies,8.9,,https://islamhouse.com/ar/books/2831718/
+x,review,الفوائد المجنية من التعليقات البازية على صحيح البخاري,alfwayd almjnyh mn altalyqat albazyh aly shyh albkhary,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,hadith-studies,22,,https://islamhouse.com/ar/books/2824521/
 x,ok,دليل أرباب الفلاح تحقيق فن الاصطلاح,dlyl arbab alflah thqyq fn alastlah,Hafiz al-Hakami,حافظ بن أحمد الحكمي,hadith-studies,1.3,,https://islamhouse.com/ar/books/2826182/
 x,ok,وجوب لزوم السنة والحذر من البدعة,wjwb lzwm alsnh walhdhr mn albdah,Abd al-Aziz ibn Baz,عبد العزيز بن باز,hadith-studies,0.1,,https://islamhouse.com/ar/books/2822175/
 x,ok,فوائد من شرح اختصار علوم الحديث,fwayd mn shrh akhtsar alwm alhdyth,Abd al-Aziz ibn Baz,عبد العزيز بن باز,hadith-studies,3.3,,https://islamhouse.com/ar/books/2800282/
@@ -186,7 +186,7 @@ x,ok,نور الإيمان وظلمات النفاق,nwr alayman wzlmat alnfaq,S
 x,ok,تعقيبات على كتاب السلفية ليست مذهباً,taqybat aly ktab alslfyh lyst mdhhba,Salih al-Fawzan,صالح بن فوزان الفوزان,aqeedah,0.8,,https://islamhouse.com/ar/books/172270/
 x,ok,درء الفتنة عن أهل السنة,dr alftnh an ahl alsnh,Bakr Abu Zayd,بكر بن عبد الله أبو زيد,aqeedah,1,,https://islamhouse.com/ar/books/152875/
 x,ok,شرح كتاب أصول الإيمان,shrh ktab aswl alayman,Muhammad ibn Abd al-Wahhab,محمد بن عبد الوهاب,aqeedah,2.4,,https://islamhouse.com/ar/books/144970/
-,review,التوحيد أولا يا دعاة الإسلام,altwhyd awla ya daah alaslam,Muhammad Nasir al-Din al-Albani,محمد ناصر الدين الألباني,aqeedah,0.5,,https://islamhouse.com/ar/books/117122/
+x,review,التوحيد أولا يا دعاة الإسلام,altwhyd awla ya daah alaslam,Muhammad Nasir al-Din al-Albani,محمد ناصر الدين الألباني,aqeedah,0.5,,https://islamhouse.com/ar/books/117122/
 x,ok,الإبطال لنظرية الخلط بين دين الإسلام وغيره من الأديان,alabtal lnzryh alkhlt byn dyn alaslam wghyrh mn aladyan,Bakr Abu Zayd,بكر بن عبد الله أبو زيد,aqeedah,3.8,,https://islamhouse.com/ar/books/79736/
 x,ok,كتاب التوحيد,ktab altwhyd,Salih al-Fawzan,صالح بن فوزان الفوزان,aqeedah,9.3,,https://islamhouse.com/ar/books/75915/
 x,ok,بيان التوحيد الذي بعث الله به الرسل جميعًا وبعث به خاتمهم محمدًا صلى الله عليه وسلم,byan altwhyd aldhy bath allh bh alrsl jmyaa wbath bh khatmhm mhmda sly allh alyh wslm,Abd al-Aziz ibn Baz,عبد العزيز بن باز,aqeedah,0.9,,https://islamhouse.com/ar/books/2131/
@@ -221,17 +221,17 @@ x,ok,منهج ودراسات لآيات الأسماء والصفات,mnhj wdras
 x,ok,المحاضرات,almhadrat,Muhammad al-Amin al-Shinqiti,محمد الأمين الشنقيطي,aqeedah,2.5,,https://islamhouse.com/ar/books/2831626/
 x,ok,اجتماع الجيوش الإسلامية على حرب المعطلة والجهمية,ajtmaa aljywsh alaslamyh aly hrb almatlh waljhmyh,Ibn al-Qayyim,ابن قيم الجوزية,aqeedah,8.3,,https://islamhouse.com/ar/books/2827741/
 x,ok,منع جواز المجاز في المنزل للتعبد والإعجاز,mna jwaz almjaz fy almnzl lltabd walaajaz,Muhammad al-Amin al-Shinqiti,محمد الأمين الشنقيطي,aqeedah,0.6,,https://islamhouse.com/ar/books/2827089/
-,review,طريق الهجرتين وباب السعادتين,tryq alhjrtyn wbab alsaadtyn,Ibn al-Qayyim,ابن قيم الجوزية,spiritual-healing,13.1,,https://islamhouse.com/ar/books/2841154/
-,review,مدارج السالكين في منازل السائرين,mdarj alsalkyn fy mnazl alsayryn,Ibn al-Qayyim,ابن قيم الجوزية,spiritual-healing,10.8,,https://islamhouse.com/ar/books/2828127/
+x,review,طريق الهجرتين وباب السعادتين,tryq alhjrtyn wbab alsaadtyn,Ibn al-Qayyim,ابن قيم الجوزية,spiritual-healing,13.1,,https://islamhouse.com/ar/books/2841154/
+x,review,مدارج السالكين في منازل السائرين,mdarj alsalkyn fy mnazl alsayryn,Ibn al-Qayyim,ابن قيم الجوزية,spiritual-healing,10.8,,https://islamhouse.com/ar/books/2828127/
 x,ok,رسالة في التبرك والتوسل والقبور,rsalh fy altbrk waltwsl walqbwr,Abd al-Aziz ibn Baz,عبد العزيز بن باز,fatwaas-and-prohibited-disliked,0.5,,https://islamhouse.com/ar/books/2826049/
 x,ok,الصدق مع الله,alsdq ma allh,Abd al-Razzaq al-Badr,عبد الرزاق بن عبد المحسن البدر,spiritual-healing,2.6,,https://islamhouse.com/ar/books/2824751/
 x,ok,هذه مفاهيمنا,hdhh mfahymna,Salih Al al-Shaykh,صالح بن عبد العزيز آل الشيخ,aqeedah,3.8,,https://islamhouse.com/ar/books/167485/
-,review,الواسطة بين الحق والخلق,alwasth byn alhq walkhlq,Muhammad Nasir al-Din al-Albani,محمد ناصر الدين الألباني,hadith-studies,1.6,,https://islamhouse.com/ar/books/1907/
+x,review,الواسطة بين الحق والخلق,alwasth byn alhq walkhlq,Muhammad Nasir al-Din al-Albani,محمد ناصر الدين الألباني,hadith-studies,1.6,,https://islamhouse.com/ar/books/1907/
 x,ok,عدة الصابرين وذخيرة الشاكرين,adh alsabryn wdhkhyrh alshakryn,Ibn al-Qayyim,ابن قيم الجوزية,spiritual-healing,9.2,,https://islamhouse.com/ar/books/2827803/
 x,ok,الخشوع في الصلاة,alkhshwa fy alslah,Ibn Rajab al-Hanbali,ابن رجب الحنبلي,islamic-jurisprudence,4.8,,https://islamhouse.com/ar/books/471724/
 x,ok,منظومة في السير إلى الله والدار الآخرة,mnzwmh fy alsyr aly allh waldar alakhrh,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,life-after-death,0.3,,https://islamhouse.com/ar/books/461168/
 x,ok,الخشوع في الصلاة في ضوء الكتاب والسنة,alkhshwa fy alslah fy dw alktab walsnh,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,hadith-studies,9.5,,https://islamhouse.com/ar/books/272709/
-,review,كتاب التوحيد : رسالة كلمة الإخلاص وتحقيق معناها,ktab altwhyd rsalh klmh alakhlas wthqyq manaha,Muhammad Nasir al-Din al-Albani,محمد ناصر الدين الألباني,aqeedah,1.7,,https://islamhouse.com/ar/books/2828033/
+x,review,كتاب التوحيد : رسالة كلمة الإخلاص وتحقيق معناها,ktab altwhyd rsalh klmh alakhlas wthqyq manaha,Muhammad Nasir al-Din al-Albani,محمد ناصر الدين الألباني,aqeedah,1.7,,https://islamhouse.com/ar/books/2828033/
 x,ok,نور الإخلاص وظلمات إرادة الدنيا بعمل الآخرة,nwr alakhlas wzlmat aradh aldnya baml alakhrh,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,life-after-death,0.9,,https://islamhouse.com/ar/books/1947/
 x,ok,الاختيارات الفقهية في مسائل العبادات والمعاملات من فتاوى الشيخ ابن باز,alakhtyarat alfqhyh fy msayl alabadat walmaamlat mn ftawy alshykh abn baz,Abd al-Aziz ibn Baz,عبد العزيز بن باز,islamic-economics,9.4,,https://islamhouse.com/ar/books/2801505/
 x,ok,مكارم الأخلاق,mkarm alakhlaq,Muhammad ibn Salih al-Uthaymin,محمد بن صالح العثيمين,islamic-etiquette,0.7,,https://islamhouse.com/ar/books/2836872/
@@ -245,7 +245,7 @@ x,ok,أركان الإسلام والإيمان في ضوء الكتاب وال�
 x,ok,تحفة الإخوان بأجوبة مهمة تتعلق بأركان الإسلام,thfh alakhwan bajwbh mhmh ttalq barkan alaslam,Abd al-Aziz ibn Baz,عبد العزيز بن باز,fatwaas-and-prohibited-disliked,2.3,,https://islamhouse.com/ar/books/794471/
 x,ok,أصول عظيمة من قواعد الإسلام,aswl azymh mn qwaad alaslam,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,quran-studies,4,,https://islamhouse.com/ar/books/348310/
 x,ok,دروس في شرح نواقض الإسلام,drws fy shrh nwaqd alaslam,Salih al-Fawzan,صالح بن فوزان الفوزان,aqeedah,5,,https://islamhouse.com/ar/books/314803/
-,review,أركان الإسلام في ضوء الكتاب والسنة,arkan alaslam fy dw alktab walsnh,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,hadith-studies,61.9,,https://islamhouse.com/ar/books/311945/
+x,review,أركان الإسلام في ضوء الكتاب والسنة,arkan alaslam fy dw alktab walsnh,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,hadith-studies,61.9,,https://islamhouse.com/ar/books/311945/
 x,ok,الركن الأول من أركان الإسلام,alrkn alawl mn arkan alaslam,Abd al-Aziz ibn Baz,عبد العزيز بن باز,fatwaas-and-prohibited-disliked,0.9,,https://islamhouse.com/ar/books/2828156/
 x,ok,أركان الإسلام,arkan alaslam,Abd al-Aziz ibn Baz,عبد العزيز بن باز,fatwaas-and-prohibited-disliked,15.8,,https://islamhouse.com/ar/books/2827819/
 x,ok,أصول الدين,aswl aldyn,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,quran-studies,2,,https://islamhouse.com/ar/books/2826002/
@@ -270,14 +270,14 @@ x,ok,قصص الأنبياء,qss alanbya,Ibn Kathir,ابن كثير,aqeedah,12,,
 x,ok,فوائد مستنبطة من قصة يوسف عليه السلام,fwayd mstnbth mn qsh ywsf alyh alslam,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,aqeedah,0.1,,https://islamhouse.com/ar/books/2136/
 ,review,تحفة النبلاء من قصص الأنبياء,thfh alnbla mn qss alanbya,Ibn Hajar al-Asqalani,ابن حجر العسقلاني,hadith-studies,5.7,,https://islamhouse.com/ar/books/2827233/
 x,ok,نيل السؤل من تاريخ الأمم وسيرة الرسول,nyl alswl mn tarykh alamm wsyrh alrswl,Hafiz al-Hakami,حافظ بن أحمد الحكمي,islamic-history,3.4,,https://islamhouse.com/ar/books/2826183/
-,review,الأرجوزة المئية في ذكر حال أشرف البرية,alarjwzh almyyh fy dhkr hal ashrf albryh,Ibn Abi al-Izz al-Hanafi,ابن أبي العز الحنفي,aqeedah,4.9,,https://islamhouse.com/ar/books/2837625/
+x,review,الأرجوزة المئية في ذكر حال أشرف البرية,alarjwzh almyyh fy dhkr hal ashrf albryh,Ibn Abi al-Izz al-Hanafi,ابن أبي العز الحنفي,aqeedah,4.9,,https://islamhouse.com/ar/books/2837625/
 x,ok,الحق الواضح المبين في الذب عن عرض الصادق الأمين,alhq alwadh almbyn fy aldhb an ard alsadq alamyn,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,spiritual-healing,1.3,,https://islamhouse.com/ar/books/2829530/
 x,ok,الفضل الكبير في الصلاة على البشير النذير,alfdl alkbyr fy alslah aly albshyr alndhyr,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,islamic-jurisprudence,1.9,,https://islamhouse.com/ar/books/884595/
 x,ok,معجزات الرسول صلى الله عليه وسلم,majzat alrswl sly allh alyh wslm,Ibn Kathir,ابن كثير,quran-studies,2.9,,https://islamhouse.com/ar/books/462847/
 x,ok,كتاب النبوات,ktab alnbwat,Ibn Taymiyyah,ابن تيمية,aqeedah,15,,https://islamhouse.com/ar/books/272842/
 ,possible-dupe,مختصر زاد المعاد,mkhtsr zad almaad,Muhammad ibn Abd al-Wahhab,محمد بن عبد الوهاب,aqeedah,7.6,,https://islamhouse.com/ar/books/264166/
 x,ok,الملتقط من كتاب طاعة الرسول صلى الله عليه وسلم للإمام أحمد بن حنبل,almltqt mn ktab taah alrswl sly allh alyh wslm llamam ahmd bn hnbl,Imam Ahmad ibn Hanbal,أحمد بن حنبل,hadith-studies,0.3,,https://islamhouse.com/ar/books/233547/
-,review,زاد المعاد في هدي خير العباد,zad almaad fy hdy khyr alabad,Ibn al-Qayyim,ابن قيم الجوزية,spiritual-healing,13.4,,https://islamhouse.com/ar/books/35239/
+x,review,زاد المعاد في هدي خير العباد,zad almaad fy hdy khyr alabad,Ibn al-Qayyim,ابن قيم الجوزية,spiritual-healing,13.4,,https://islamhouse.com/ar/books/35239/
 x,ok,مختصر جلاء الأفهام في فضل الصلاة والسلام على خير الأنام صلى الله عليه وسلم,mkhtsr jla alafham fy fdl alslah walslam aly khyr alanam sly allh alyh wslm,Ibn al-Qayyim,ابن قيم الجوزية,islamic-jurisprudence,7.1,,https://islamhouse.com/ar/books/2831674/
 x,ok,جلاء الأفهام في فضل الصلاة والسلام على خير الأنام صلى الله عليه وسلم,jla alafham fy fdl alslah walslam aly khyr alanam sly allh alyh wslm,Ibn al-Qayyim,ابن قيم الجوزية,islamic-jurisprudence,9.1,,https://islamhouse.com/ar/books/2827764/
 x,ok,محمد صلى الله عليه وسلم بين الغالي والجافي,mhmd sly allh alyh wslm byn alghaly waljafy,Abd al-Aziz ibn Baz,عبد العزيز بن باز,fatwaas-and-prohibited-disliked,1.2,,https://islamhouse.com/ar/books/2802938/
@@ -290,7 +290,7 @@ x,ok,الشمائل المحمدية,alshmayl almhmdyh,al-Tirmidhi,محمد بن
 x,ok,شمائل النبي صلى الله عليه وسلم,shmayl alnby sly allh alyh wslm,al-Tirmidhi,محمد بن عيسى الترمذي,hadith-studies,4.5,,https://islamhouse.com/ar/books/393293/
 x,ok,مختصر الشمائل المحمدية,mkhtsr alshmayl almhmdyh,Muhammad Nasir al-Din al-Albani,محمد ناصر الدين الألباني,hadith-studies,3.5,,https://islamhouse.com/ar/books/393292/
 x,ok,مباحث اليوم الآخر,mbahth alywm alakhr,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,life-after-death,2,,https://islamhouse.com/ar/books/2844780/
-,review,الروح,alrwh,Ibn al-Qayyim,ابن قيم الجوزية,life-after-death,7.6,,https://islamhouse.com/ar/books/2841134/
+x,review,الروح,alrwh,Ibn al-Qayyim,ابن قيم الجوزية,life-after-death,7.6,,https://islamhouse.com/ar/books/2841134/
 x,ok,كتاب الروح,ktab alrwh,Ibn al-Qayyim,ابن قيم الجوزية,life-after-death,12.7,,https://islamhouse.com/ar/books/2827805/
 x,ok,الشفاعة,alshfaah,Muqbil ibn Hadi al-Wadi'i,مقبل بن هادي الوادعي,life-after-death,4.6,,https://islamhouse.com/ar/books/2809787/
 x,ok,الفقه في الدين عصمة من الفتن,alfqh fy aldyn asmh mn alftn,Salih al-Fawzan,صالح بن فوزان الفوزان,life-after-death,3.6,,https://islamhouse.com/ar/books/794466/
@@ -306,7 +306,7 @@ x,ok,سمات المؤمنين في الفتن وتقلب الأحوال,smat al
 x,ok,الجنة دار الأبرار والطريق الموصل إليها,aljnh dar alabrar waltryq almwsl alyha,Abu Bakr al-Jaza'iri,أبو بكر جابر الجزائري,life-after-death,0.2,,https://islamhouse.com/ar/books/2622/
 x,ok,الضوابط الشرعية لموقف المسلم من الفتن,aldwabt alshrayh lmwqf almslm mn alftn,Salih Al al-Shaykh,صالح بن عبد العزيز آل الشيخ,aqeedah,4.2,,https://islamhouse.com/ar/books/468612/
 x,ok,الأصول الشرعية عند حلول الشبهات,alaswl alshrayh and hlwl alshbhat,Salih Al al-Shaykh,صالح بن عبد العزيز آل الشيخ,deviated-sects-and-bidah,0.2,,https://islamhouse.com/ar/books/167472/
-,review,شفاء العليل في مسائل القضاء والقدر والحكمة والتعليل,shfa alalyl fy msayl alqda walqdr walhkmh waltalyl,Ibn al-Qayyim,ابن قيم الجوزية,aqeedah,8.6,,https://islamhouse.com/ar/books/2831717/
+x,review,شفاء العليل في مسائل القضاء والقدر والحكمة والتعليل,shfa alalyl fy msayl alqda walqdr walhkmh waltalyl,Ibn al-Qayyim,ابن قيم الجوزية,aqeedah,8.6,,https://islamhouse.com/ar/books/2831717/
 x,ok,الدرة البهية شرح القصيدة التائية في حل المشكلة القدرية,aldrh albhyh shrh alqsydh altayyh fy hl almshklh alqdryh,Abd al-Rahman al-Sa'di,عبد الرحمن بن ناصر السعدي,aqeedah,1.4,,https://islamhouse.com/ar/books/2830484/
 x,ok,حكم الدخان والتدخين على ضوء الطب والدين,hkm aldkhan waltdkhyn aly dw altb waldyn,Muhammad ibn Jamil Zeno,محمد بن جميل زينو,aqeedah,1.6,,https://islamhouse.com/ar/books/2830397/
 x,ok,تحريم آلات الطرب,thrym alat altrb,Muhammad Nasir al-Din al-Albani,محمد ناصر الدين الألباني,aqeedah,5.4,,https://islamhouse.com/ar/books/2828770/
@@ -330,7 +330,7 @@ x,ok,واجبنا نحو الصحابة رضي الله عنهم,wajbna nhw alsh
 x,ok,مواقف الصحابة رضي الله عنهم في الدعوة إلى الله تعالى,mwaqf alshabh rdy allh anhm fy aldawh aly allh taaly,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,dawah,2.3,,https://islamhouse.com/ar/books/337970/
 ,review,الثغور الباسمة في مناقب سيدتنا فاطمة بنت رسول الله صلى الله عليه وسلم,althghwr albasmh fy mnaqb sydtna fatmh bnt rswl allh sly allh alyh wslm,al-Suyuti,السيوطي,quran-studies,2.6,,https://islamhouse.com/ar/books/335472/
 x,ok,فوائد من شرح اقتضاء الصراط المستقيم لمخالفة أصحاب الجحيم,fwayd mn shrh aqtda alsrat almstqym lmkhalfh ashab aljhym,Abd al-Aziz ibn Baz,عبد العزيز بن باز,fatwaas-and-prohibited-disliked,4.4,,https://islamhouse.com/ar/books/2800292/
-,review,البراهين الجلية في إبطال العادات القبلية الجاهلية المخالفة للشريعة الإسلامية,albrahyn aljlyh fy abtal alaadat alqblyh aljahlyh almkhalfh llshryah alaslamyh,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,spiritual-healing,2.5,,https://islamhouse.com/ar/books/406560/
+x,review,البراهين الجلية في إبطال العادات القبلية الجاهلية المخالفة للشريعة الإسلامية,albrahyn aljlyh fy abtal alaadat alqblyh aljahlyh almkhalfh llshryah alaslamyh,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,spiritual-healing,2.5,,https://islamhouse.com/ar/books/406560/
 x,ok,شـرح رسالة الدلائل في حكم موالاة أهل الإشراك,shrh rsalh aldlayl fy hkm mwalah ahl alashrak,Salih al-Fawzan,صالح بن فوزان الفوزان,aqeedah,5.7,,https://islamhouse.com/ar/books/314830/
 x,ok,التعليق المختصر على القصيدة النونية,altalyq almkhtsr aly alqsydh alnwnyh,Salih al-Fawzan,صالح بن فوزان الفوزان,hadith-studies,15.2,,https://islamhouse.com/ar/books/205557/
 x,ok,ثبات عقيدة السلف وسلامتها من التغيرات,thbat aqydh alslf wslamtha mn altghyrat,Abd al-Razzaq al-Badr,عبد الرزاق بن عبد المحسن البدر,aqeedah,0.5,,https://islamhouse.com/ar/books/316847/
@@ -339,19 +339,19 @@ x,ok,مجمل عقيدة السلف الصالح,mjml aqydh alslf alsalh,Salih a
 x,ok,هداية الحيارى في أجوبة اليهود والنصارى,hdayh alhyary fy ajwbh alyhwd walnsary,Ibn al-Qayyim,ابن قيم الجوزية,spiritual-healing,10.1,,https://islamhouse.com/ar/books/2841149/
 x,ok,لمحة عن الفرق الضالة,lmhh an alfrq aldalh,Salih al-Fawzan,صالح بن فوزان الفوزان,deviated-sects-and-bidah,4.8,,https://islamhouse.com/ar/books/314808/
 x,ok,الرسالة السنية إلى الطائفة العدوية,alrsalh alsnyh aly altayfh aladwyh,Ibn Taymiyyah,ابن تيمية,deviated-sects-and-bidah,7,,https://islamhouse.com/ar/books/2836701/
-,review,ذم ما عليه مدعو التصوف من الغناء والرقص,dhm ma alyh mdaw altswf mn alghna walrqs,Ibn Qudamah al-Maqdisi,ابن قدامة المقدسي,deviated-sects-and-bidah,2.8,,https://islamhouse.com/ar/books/2836655/
+x,review,ذم ما عليه مدعو التصوف من الغناء والرقص,dhm ma alyh mdaw altswf mn alghna walrqs,Ibn Qudamah al-Maqdisi,ابن قدامة المقدسي,deviated-sects-and-bidah,2.8,,https://islamhouse.com/ar/books/2836655/
 x,ok,حقيقة دعوة التقريب,hqyqh dawh altqryb,Bakr Abu Zayd,بكر بن عبد الله أبو زيد,deviated-sects-and-bidah,0.6,,https://islamhouse.com/ar/books/2817357/
-,review,الصوفية في ميزان الكتاب والسنة,alswfyh fy myzan alktab walsnh,Muhammad ibn Jamil Zeno,محمد بن جميل زينو,deviated-sects-and-bidah,2.7,,https://islamhouse.com/ar/books/2813129/
+x,review,الصوفية في ميزان الكتاب والسنة,alswfyh fy myzan alktab walsnh,Muhammad ibn Jamil Zeno,محمد بن جميل زينو,deviated-sects-and-bidah,2.7,,https://islamhouse.com/ar/books/2813129/
 x,ok,ضلال جماعة الأحباش,dlal jmaah alahbash,The Permanent Committee (al-Lajnah al-Da'imah),اللجنة الدائمة للبحوث العلمية والإفتاء,deviated-sects-and-bidah,1.4,,https://islamhouse.com/ar/books/794369/
 x,ok,الإلحاد الخميني في أرض الحرمين,alalhad alkhmyny fy ard alhrmyn,Muqbil ibn Hadi al-Wadi'i,مقبل بن هادي الوادعي,deviated-sects-and-bidah,5.9,,https://islamhouse.com/ar/books/380511/
-,review,صعقة الزلزال لنسف أباطيل الرفض والاعتزال,saqh alzlzal lnsf abatyl alrfd walaatzal,Muqbil ibn Hadi al-Wadi'i,مقبل بن هادي الوادعي,deviated-sects-and-bidah,7.8,,https://islamhouse.com/ar/books/380506/
+x,review,صعقة الزلزال لنسف أباطيل الرفض والاعتزال,saqh alzlzal lnsf abatyl alrfd walaatzal,Muqbil ibn Hadi al-Wadi'i,مقبل بن هادي الوادعي,deviated-sects-and-bidah,7.8,,https://islamhouse.com/ar/books/380506/
 x,ok,البيان بالدليل لما في نصيحة الرفاعي ومقدمة البوطي من الكذب الواضح والتضليل,albyan baldlyl lma fy nsyhh alrfaay wmqdmh albwty mn alkdhb alwadh waltdlyl,Salih al-Fawzan,صالح بن فوزان الفوزان,deviated-sects-and-bidah,4.4,,https://islamhouse.com/ar/books/314804/
 x,ok,رسالة في الرد على الرافضة,rsalh fy alrd aly alrafdh,Muhammad ibn Abd al-Wahhab,محمد بن عبد الوهاب,deviated-sects-and-bidah,0.8,,https://islamhouse.com/ar/books/264194/
 x,ok,المنتقى من منهاج الاعتدال في نقض كلام أهل الرفض والاعتزال [ مختصر منهاج السنة ],almntqy mn mnhaj alaatdal fy nqd klam ahl alrfd walaatzal mkhtsr mnhaj alsnh,al-Dhahabi,الذهبي,deviated-sects-and-bidah,11.9,,https://islamhouse.com/ar/books/263788/
 x,ok,حكم الانتماء إلى الفرق والأحزاب والجماعات الإسلامية,hkm alantma aly alfrq walahzab waljmaaat alaslamyh,Bakr Abu Zayd,بكر بن عبد الله أبو زيد,deviated-sects-and-bidah,6.6,,https://islamhouse.com/ar/books/79744/
 x,ok,هذه نصيحتي إلى كل شيعي,hdhh nsyhty aly kl shyay,Abu Bakr al-Jaza'iri,أبو بكر جابر الجزائري,deviated-sects-and-bidah,0.1,,https://islamhouse.com/ar/books/2623/
-,review,إلى التصوف ياعباد الله,aly altswf yaabad allh,Abu Bakr al-Jaza'iri,أبو بكر جابر الجزائري,deviated-sects-and-bidah,3.4,,https://islamhouse.com/ar/books/2603/
-,review,حقيقة التصوف وموقف الصوفية من أصول العبادة والدين,hqyqh altswf wmwqf alswfyh mn aswl alabadh waldyn,Salih al-Fawzan,صالح بن فوزان الفوزان,deviated-sects-and-bidah,0.6,,https://islamhouse.com/ar/books/2068/
+x,review,إلى التصوف ياعباد الله,aly altswf yaabad allh,Abu Bakr al-Jaza'iri,أبو بكر جابر الجزائري,deviated-sects-and-bidah,3.4,,https://islamhouse.com/ar/books/2603/
+x,review,حقيقة التصوف وموقف الصوفية من أصول العبادة والدين,hqyqh altswf wmwqf alswfyh mn aswl alabadh waldyn,Salih al-Fawzan,صالح بن فوزان الفوزان,deviated-sects-and-bidah,0.6,,https://islamhouse.com/ar/books/2068/
 x,ok,الأسئلة اليامية على العقيدة الإسماعيلية,alasylh alyamyh aly alaqydh alasmaaylyh,Abd al-Aziz ibn Baz,عبد العزيز بن باز,aqeedah,2.6,,https://islamhouse.com/ar/books/2826047/
 x,ok,الصواعق المرسلة على الجهمية والمعطلة,alswaaq almrslh aly aljhmyh walmatlh,Ibn al-Qayyim,ابن قيم الجوزية,spiritual-healing,19.9,,https://islamhouse.com/ar/books/2831716/
 x,ok,الرد على الزنادقة والجهمية فيما شكت فيه من متشابه القرآن وتأولته على غير تأويله,alrd aly alznadqh waljhmyh fyma shkt fyh mn mtshabh alqran wtawlth aly ghyr tawylh,Imam Ahmad ibn Hanbal,أحمد بن حنبل,deviated-sects-and-bidah,2.9,,https://islamhouse.com/ar/books/2828031/
@@ -361,8 +361,8 @@ x,ok,نقد القومية العربية على ضوء الإسلام والو�
 x,ok,كيفية دعوة الملحدين إلى الله تعالى في ضوء الكتاب والسنة,kyfyh dawh almlhdyn aly allh taaly fy dw alktab walsnh,Sa'id ibn Ali al-Qahtani,سعيد بن علي بن وهف القحطاني,hadith-studies,2,,https://islamhouse.com/ar/books/338049/
 x,ok,الفروسية المحمدية,alfrwsyh almhmdyh,Ibn al-Qayyim,ابن قيم الجوزية,islamic-jurisprudence,7.4,,https://islamhouse.com/ar/books/2841140/
 x,ok,إغاثة اللهفان في حكم طلاق الغضبان,aghathh allhfan fy hkm tlaq alghdban,Ibn al-Qayyim,ابن قيم الجوزية,islamic-jurisprudence,1.8,,https://islamhouse.com/ar/books/2841128/
-,review,أحكام أهل الذمة,ahkam ahl aldhmh,Ibn al-Qayyim,ابن قيم الجوزية,islamic-jurisprudence,20.4,,https://islamhouse.com/ar/books/2841127/
-,review,مجموع الشروح الفقهية للعلامة الشيخ عبد العزيز ابن باز رحمه الله,mjmwa alshrwh alfqhyh llalamh alshykh abd alazyz abn baz rhmh allh,Abd al-Aziz ibn Baz,عبد العزيز بن باز,islamic-jurisprudence,22.6,,https://islamhouse.com/ar/books/2838540/
+x,review,أحكام أهل الذمة,ahkam ahl aldhmh,Ibn al-Qayyim,ابن قيم الجوزية,islamic-jurisprudence,20.4,,https://islamhouse.com/ar/books/2841127/
+x,review,مجموع الشروح الفقهية للعلامة الشيخ عبد العزيز ابن باز رحمه الله,mjmwa alshrwh alfqhyh llalamh alshykh abd alazyz abn baz rhmh allh,Abd al-Aziz ibn Baz,عبد العزيز بن باز,islamic-jurisprudence,22.6,,https://islamhouse.com/ar/books/2838540/
 x,ok,الإجابات على أسئلة الجاليات - ابن عثيمين,alajabat aly asylh aljalyat abn athymyn,Muhammad ibn Salih al-Uthaymin,محمد بن صالح العثيمين,islamic-jurisprudence,1.8,,https://islamhouse.com/ar/books/2836064/
 x,ok,أمن البلاد: أهميته ووسائل تحقيقه وحفظه,amn alblad ahmyth wwsayl thqyqh whfzh,Abd al-Razzaq al-Badr,عبد الرزاق بن عبد المحسن البدر,islamic-jurisprudence,0.5,,https://islamhouse.com/ar/books/344671/
 x,ok,أحكام آخر الأيام,ahkam akhr alayam,Abu Bakr al-Jaza'iri,أبو بكر جابر الجزائري,new-muslims,0.4,,https://islamhouse.com/ar/books/407327/
