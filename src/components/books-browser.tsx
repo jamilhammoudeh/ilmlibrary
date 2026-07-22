@@ -48,7 +48,7 @@ export function BooksBrowser({
 
   // ?lang= and ?sort= live in the URL so filtered views are shareable.
   const [lang, setLang] = useUrlString("lang", initialLang);
-  const [sort, setSort] = useUrlString("sort", initialSort);
+  const [sort] = useUrlString("sort", initialSort);
 
   const trimmed = query.trim();
   const searching = trimmed.length >= 2;
@@ -208,16 +208,6 @@ export function BooksBrowser({
                 );
               })}
             </div>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              aria-label="Sort search results"
-              className="rounded-full bg-white border border-gray-200 px-4 py-2 text-sm font-semibold text-teal-900 shadow-[0_2px_8px_rgba(0,0,0,0.06)] outline-none cursor-pointer hover:border-teal-700/40 focus:ring-2 focus:ring-teal-700/15 transition-colors"
-            >
-              <option value="default">Default</option>
-              <option value="newest">Newest</option>
-              <option value="title">Title A–Z</option>
-            </select>
           </div>
           <Link
             href="/books/authors"

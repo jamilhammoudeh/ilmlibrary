@@ -14,7 +14,6 @@ const navLinks: { href: string; label: string; arabic?: boolean }[] = [
   { href: "/why-islam", label: "Why Islam" },
   { href: "/guides", label: "Islamic Guides" },
   { href: "/wisdom", label: "Wisdom" },
-  { href: "/arabic", label: "العربية", arabic: true },
   { href: "/donate", label: "Donate" },
   { href: "/about", label: "About" },
 ];
