@@ -58,11 +58,15 @@ export default async function BookCategoryPage({
   return (
     <>
       <ContentHeader
-        title={category.name}
-        subtitle={category.description ?? undefined}
+        title={lang === "ar" && category.name_ar ? category.name_ar : category.name}
+        subtitle={
+          lang === "ar" && category.name_ar
+            ? category.name
+            : (category.description ?? undefined)
+        }
         breadcrumbs={[
           { label: "Books", href: "/books" },
-          { label: category.name },
+          { label: lang === "ar" && category.name_ar ? category.name_ar : category.name },
         ]}
       />
 

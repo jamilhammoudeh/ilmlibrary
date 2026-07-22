@@ -12,6 +12,7 @@ type Category = {
   id: string;
   name: string;
   slug: string;
+  name_ar?: string | null;
 };
 
 type BookResult = {
@@ -255,8 +256,16 @@ export function BooksBrowser({
                 href={`/books/${cat.slug}${categoryQuery}`}
                 className="group w-[calc(50%-0.5rem)] sm:w-[230px] h-[58px] bg-white rounded-2xl flex items-center justify-center text-center font-[family-name:var(--font-roboto)] text-[17px] font-bold text-teal-900 shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_24px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-200"
               >
-                <span className="group-hover:text-teal-700 transition-colors px-2">
-                  {cat.name}
+                <span
+                  className={`group-hover:text-teal-700 transition-colors px-2 ${
+                    lang === "ar" && cat.name_ar
+                      ? "font-[family-name:var(--font-amiri)] text-[20px]"
+                      : ""
+                  }`}
+                  lang={lang === "ar" && cat.name_ar ? "ar" : undefined}
+                  dir={lang === "ar" && cat.name_ar ? "rtl" : undefined}
+                >
+                  {lang === "ar" && cat.name_ar ? cat.name_ar : cat.name}
                 </span>
               </Link>
             ))}
