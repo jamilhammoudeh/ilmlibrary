@@ -79,6 +79,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Cloudflare Access protects /admin at the edge; we only fetch the
   // verified identity for the sidebar display.
   useEffect(() => {
+    // The Access app covers www — on the bare domain the /api/admin calls
+    // would bypass Access and 401, so always run the admin panel on www.
+    if (window.location.hostname === "ilmlibrary.org") {
+      window.location.replace(
+        `https://www.ilmlibrary.org${window.location.pathname}${window.location.search}`
+      );
+      return;
+    }
     adminApi
       .me()
       .then(({ email }) => setEmail(email))
