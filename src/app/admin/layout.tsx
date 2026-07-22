@@ -176,7 +176,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           }`}
         >
           <div className="bg-teal-900 px-5 py-5">
-            <Link href="/admin" className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3" title="Back to the website">
               <div className="w-11 h-11 rounded-md bg-teal-800 flex items-center justify-center shrink-0 ring-1 ring-teal-700/60">
                 <Image
                   src="/logo.png"

@@ -51,3 +51,6 @@ cloudflare-env.d.ts
 
 # migration artifacts (supabase exports, staging data)
 migration-data/
+
+# local tooling (poppler for cover rendering)
+tools/
