@@ -51,7 +51,11 @@ export async function requireAdmin(request: Request): Promise<{ email: string } 
     const email = typeof payload.email === "string" ? payload.email : null;
     if (!email) return unauthorized("Access token has no email claim");
     return { email };
-  } catch {
+  } catch (err) {
+    // Reset the JWKS cache — a poisoned cross-request cache would otherwise
+    // fail every subsequent verification too.
+    jwksCache = null;
+    console.error("Access JWT verification failed:", err instanceof Error ? `${err.name}: ${err.message}` : String(err));
     return unauthorized("Invalid Cloudflare Access token");
   }
 }
