@@ -53,43 +53,43 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="bg-teal-900 text-white fixed top-0 left-0 right-0 z-50 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center h-14">
+      <nav className="bg-teal-900 text-white fixed top-0 left-0 right-0 z-50 shadow-[0_2px_16px_rgba(1,48,42,0.35)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center h-16">
           {/* Logo */}
           <div className="flex-1 flex justify-start min-w-0">
             <Link
               href="/"
-              className="flex items-center gap-2 hover:opacity-90 transition-opacity min-w-0"
+              className="flex items-center gap-2.5 hover:opacity-90 transition-opacity min-w-0"
             >
               <Image
                 src="/logo.png"
                 alt="Ilm Library"
-                width={36}
-                height={36}
+                width={38}
+                height={38}
                 className="rounded-md shrink-0"
                 priority
               />
-              <span className="text-lg sm:text-xl font-bold tracking-wide font-[family-name:var(--font-amiri)] truncate">
+              <span className="text-xl sm:text-[22px] font-bold tracking-wide font-[family-name:var(--font-amiri)] truncate">
                 Ilm Library
               </span>
             </Link>
           </div>
 
           {/* Desktop nav */}
-          <ul className="hidden lg:flex items-center justify-center gap-1 shrink-0">
+          <ul className="hidden lg:flex items-center justify-center gap-0.5 shrink-0">
             {navLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   lang={link.arabic ? "ar" : undefined}
-                  className={`relative px-3 py-2 font-bold text-white transition-colors after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-0.5 after:bg-white after:transition-transform after:origin-center ${
+                  className={`relative px-3 py-2 font-semibold transition-colors after:absolute after:left-3 after:right-3 after:bottom-0 after:h-[2px] after:rounded-full after:bg-gold-400 after:transition-transform after:origin-center ${
                     link.arabic
                       ? "text-lg font-[family-name:var(--font-amiri)]"
-                      : "text-base"
+                      : "text-[15px]"
                   } ${
                     isActive(link.href)
-                      ? "after:scale-x-100"
-                      : "after:scale-x-0 hover:after:scale-x-100"
+                      ? "text-white after:scale-x-100"
+                      : "text-teal-50/90 hover:text-white after:scale-x-0 hover:after:scale-x-100"
                   }`}
                 >
                   {link.label}
@@ -102,10 +102,10 @@ export function Navbar() {
           <div className="flex-1 flex justify-end items-center gap-2">
             <Link
               href="/bookmarks"
-              className="hidden lg:block p-2 text-white hover:text-teal-100 transition-colors"
+              className="hidden lg:block p-2 text-teal-50/90 hover:text-gold-400 transition-colors"
               title="My Bookmarks"
             >
-              <Bookmark size={18} />
+              <Bookmark size={19} />
             </Link>
 
             {/* Mobile: bookmark + hamburger */}
@@ -141,6 +141,11 @@ export function Navbar() {
             </div>
           </div>
         </div>
+        {/* Gold hairline — sits inside the bar so it doesn't add height */}
+        <div
+          aria-hidden="true"
+          className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold-500/60 to-transparent"
+        />
       </nav>
 
       {/* Mobile menu backdrop */}
@@ -149,20 +154,20 @@ export function Navbar() {
         aria-hidden="true"
         tabIndex={-1}
         onClick={() => setIsOpen(false)}
-        className={`lg:hidden fixed inset-0 top-14 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`lg:hidden fixed inset-0 top-16 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
 
       {/* Mobile menu panel */}
       <div
-        className={`lg:hidden fixed left-0 right-0 top-14 z-40 bg-teal-900 text-white shadow-[0_12px_24px_rgba(0,0,0,0.2)] origin-top transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`lg:hidden fixed left-0 right-0 top-16 z-40 bg-teal-900 text-white shadow-[0_12px_24px_rgba(0,0,0,0.2)] origin-top transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           isOpen
             ? "opacity-100 translate-y-0"
             : "opacity-0 -translate-y-4 pointer-events-none"
         }`}
       >
-        <ul className="px-4 py-3 space-y-1 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
+        <ul className="px-4 py-3 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
           {navLinks.map((link, i) => (
             <li
               key={link.href}

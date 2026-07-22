@@ -1,16 +1,25 @@
 @import "tailwindcss";
 
 @theme inline {
+  --color-teal-950: #01302a;
   --color-teal-900: #004d40;
   --color-teal-800: #00695c;
   --color-teal-700: #00796b;
   --color-teal-600: #2c786c;
-  --color-teal-100: #e0f7fa;
-  --color-teal-50: #e8f5f3;
-  --color-cream: #faf8f5;
+  --color-teal-100: #d9ece6;
+  --color-teal-50: #edf5f2;
+  --color-cream: #faf7f1;
+  --color-parchment: #f5f0e6;
+  --color-gold-700: #96742f;
+  --color-gold-600: #b08d3e;
+  --color-gold-500: #c9a44c;
+  --color-gold-400: #dbbf78;
+  --color-gold-200: #ecdcb0;
+  --color-gold-100: #f5ecd7;
+  --color-ink: #26332f;
   --color-green-accent: #006e3b;
 
-  --font-sans: var(--font-roboto);
+  --font-sans: var(--font-body);
   --font-arabic: var(--font-scheherazade);
 }
 
@@ -19,8 +28,12 @@ html {
 }
 
 body {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: #faf7f1;
+  color: #26332f;
+}
+
+::selection {
+  background: rgba(201, 164, 76, 0.28);
 }
 
 /* Arabic text styling */
@@ -39,6 +52,24 @@ body {
   font-size: 1.12em;
 }
 
+/* Subtle 8-point star (khatam) lattice — dark strokes for light surfaces */
+.pattern-star {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='%23004d40' stroke-opacity='0.06' stroke-width='1'%3E%3Crect x='21' y='21' width='30' height='30'/%3E%3Crect x='21' y='21' width='30' height='30' transform='rotate(45 36 36)'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 72px 72px;
+}
+
+/* Same lattice in white — for dark teal surfaces */
+.pattern-star-light {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.08' stroke-width='1'%3E%3Crect x='21' y='21' width='30' height='30'/%3E%3Crect x='21' y='21' width='30' height='30' transform='rotate(45 36 36)'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 72px 72px;
+}
+
+/* Fades the lattice out toward the edges so it reads as texture, not wallpaper */
+.pattern-fade {
+  -webkit-mask-image: radial-gradient(ellipse 80% 90% at 50% 40%, black 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 80% 90% at 50% 40%, black 30%, transparent 75%);
+}
+
 /* Horizontal scroll-snap strip (New Books carousel) */
 .scroll-strip {
   display: flex;
@@ -55,12 +86,12 @@ body {
 }
 
 .card-shadow {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(38, 51, 47, 0.04), 0 4px 16px rgba(38, 51, 47, 0.07);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card-shadow:hover {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 4px rgba(38, 51, 47, 0.05), 0 14px 30px rgba(38, 51, 47, 0.11);
 }
 
 @keyframes fade-in-up {

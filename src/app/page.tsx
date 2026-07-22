@@ -70,9 +70,6 @@ export default async function HomePage({
         <DuaSlideshow />
       </div>
 
-      {/* Continue Reading */}
-      <RecentlyRead />
-
       {/* Section cards */}
       <section className="max-w-[1300px] mx-auto px-5 pb-6">
         <div className="flex flex-wrap justify-center gap-6">
@@ -99,8 +96,13 @@ export default async function HomePage({
         </div>
       </section>
 
+      {/* Continue Reading */}
+      <div className="mt-8">
+        <RecentlyRead />
+      </div>
+
       {/* New in the Library */}
-      <section className="max-w-[1300px] mx-auto px-5 mt-10 md:mt-14 pb-20">
+      <section className="max-w-[1300px] mx-auto px-5 mt-6 md:mt-8 pb-20">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
           <h2 className="text-2xl md:text-3xl font-bold font-[family-name:var(--font-playfair)] text-teal-900">
             New in the Library
