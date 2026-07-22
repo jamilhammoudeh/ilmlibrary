@@ -1,0 +1,23 @@
+-- Arabic display names for the book categories (used by /arabic and RTL chips)
+UPDATE categories SET name_ar = 'العقيدة' WHERE slug = 'aqeedah';
+UPDATE categories SET name_ar = 'التراجم والسير' WHERE slug = 'biographies';
+UPDATE categories SET name_ar = 'الدعوة' WHERE slug = 'dawah';
+UPDATE categories SET name_ar = 'الفرق المنحرفة والبدع' WHERE slug = 'deviated-sects-and-bidah';
+UPDATE categories SET name_ar = 'الأسرة والزواج' WHERE slug = 'family-and-marriage';
+UPDATE categories SET name_ar = 'الفتاوى' WHERE slug = 'fatwaas-and-prohibited-disliked';
+UPDATE categories SET name_ar = 'توجيهات للإخوة' WHERE slug = 'guidance-for-brothers';
+UPDATE categories SET name_ar = 'توجيهات للأخوات' WHERE slug = 'guidance-for-sisters';
+UPDATE categories SET name_ar = 'علوم الحديث' WHERE slug = 'hadith-studies';
+UPDATE categories SET name_ar = 'الحج والعمرة' WHERE slug = 'hajj-and-umrah';
+UPDATE categories SET name_ar = 'الاقتصاد الإسلامي' WHERE slug = 'islamic-economics';
+UPDATE categories SET name_ar = 'الآداب الإسلامية' WHERE slug = 'islamic-etiquette';
+UPDATE categories SET name_ar = 'التاريخ الإسلامي' WHERE slug = 'islamic-history';
+UPDATE categories SET name_ar = 'الفقه' WHERE slug = 'islamic-jurisprudence';
+UPDATE categories SET name_ar = 'العلم وطلبه' WHERE slug = 'knowledge';
+UPDATE categories SET name_ar = 'تعلم العربية' WHERE slug = 'learning-arabic';
+UPDATE categories SET name_ar = 'الحياة بعد الموت' WHERE slug = 'life-after-death';
+UPDATE categories SET name_ar = 'المسلمون الجدد' WHERE slug = 'new-muslims';
+UPDATE categories SET name_ar = 'علوم القرآن' WHERE slug = 'quran-studies';
+UPDATE categories SET name_ar = 'العلماء' WHERE slug = 'scholars';
+UPDATE categories SET name_ar = 'الرقائق وتزكية النفس' WHERE slug = 'spiritual-healing';
+UPDATE categories SET name_ar = 'الشباب والأطفال' WHERE slug = 'youth-and-children';

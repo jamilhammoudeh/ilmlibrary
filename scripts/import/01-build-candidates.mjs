@@ -52,6 +52,10 @@ const IMPORT_DIR = dirname(fileURLToPath(import.meta.url));
 const SEEDS = join(IMPORT_DIR, "seeds");
 const STATE = join(IMPORT_DIR, "state");
 const CAP = 400; // pilot-round cap per source
+// Optional per-author cap (--max-per-author=N) — archive.org creator searches
+// for famous authors return hundreds of near-duplicate editions otherwise.
+const MAX_PER_AUTHOR = Number(process.argv.find((a) => a.startsWith("--max-per-author="))?.split("=")[1] ?? 0) || 0;
+const perAuthorCount = new Map();
 
 const source = process.argv.find((a) => a.startsWith("--source="))?.split("=")[1];
 if (!["islamhouse", "archive-org"].includes(source)) {
@@ -294,6 +298,9 @@ async function buildArchiveOrg() {
       stats.noWhitelistAuthor++;
       continue;
     }
+    if (MAX_PER_AUTHOR && (perAuthorCount.get(author.id) ?? 0) >= MAX_PER_AUTHOR) {
+      continue;
+    }
     let meta;
     try {
       meta = await fetcher.json(`https://archive.org/metadata/${identifier}`, `meta-${identifier}.json`);
@@ -328,6 +335,7 @@ async function buildArchiveOrg() {
       size_bytes: pdf.size != null ? Number(pdf.size) : null,
       year: extractYear(doc.year ?? meta.metadata?.year ?? meta.metadata?.date),
     });
+    perAuthorCount.set(author.id, (perAuthorCount.get(author.id) ?? 0) + 1);
     if (++processed % 25 === 0) console.log(`  ${processed} candidates built...`);
   }
 }

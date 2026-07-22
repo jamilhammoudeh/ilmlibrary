@@ -192,19 +192,23 @@ for (const [i, rec] of todo.entries()) {
   });
 }
 
-// batch INSERTs, each statement under MAX_STATEMENT_CHARS
+// batch INSERTs, each statement under MAX_STATEMENT_CHARS *bytes* —
+// D1's 100KB cap is on bytes, and Arabic text is ~2 bytes/char in UTF-8,
+// so measuring string length overshoots the cap badly.
 const head = `INSERT INTO books (${INSERT_COLUMNS.join(", ")}) VALUES\n`;
+const headBytes = Buffer.byteLength(head, "utf8");
 const statements = [];
 let currentRows = [];
-let currentLen = head.length;
+let currentLen = headBytes;
 for (const row of rowsForSql) {
-  if (currentRows.length && currentLen + row.values.length + 2 > MAX_STATEMENT_CHARS) {
+  const rowBytes = Buffer.byteLength(row.values, "utf8");
+  if (currentRows.length && currentLen + rowBytes + 2 > MAX_STATEMENT_CHARS) {
     statements.push(head + currentRows.join(",\n") + ";");
     currentRows = [];
-    currentLen = head.length;
+    currentLen = headBytes;
   }
   currentRows.push(row.values);
-  currentLen += row.values.length + 2;
+  currentLen += rowBytes + 2;
 }
 if (currentRows.length) statements.push(head + currentRows.join(",\n") + ";");
 
