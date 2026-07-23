@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { PageHeader, SectionTitle } from "@/components/admin/page-header";
+import { CfAnalyticsPanel } from "@/components/admin/cf-analytics-panel";
 import { StatCard } from "@/components/admin/stat-card";
 import { ViewsChart, type RangeKey } from "@/components/admin/views-chart";
 
@@ -375,6 +376,11 @@ export default function AdminAnalyticsPage() {
           icon={Speaker}
           items={data?.topKhutbas ?? null}
         />
+      </div>
+
+      {/* Cloudflare edge analytics — network-level truth beside first-party views */}
+      <div className="mt-6">
+        <CfAnalyticsPanel />
       </div>
     </>
   );
