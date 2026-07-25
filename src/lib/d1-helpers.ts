@@ -6,6 +6,7 @@ export const BOOL_COLUMNS: Record<string, string[]> = {
   categories: ["hidden"],
   pages: ["hidden"],
   sponsors: ["active"],
+  contact_messages: ["read"],
 };
 
 /** Columns stored as JSON text in D1 but exposed as objects in app types. */

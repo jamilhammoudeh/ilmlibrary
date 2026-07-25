@@ -27,6 +27,7 @@ import {
   Activity as ActivityIcon,
   AlertCircle,
   ScrollText,
+  Mail,
 } from "lucide-react";
 import { ToastProvider } from "@/components/admin/toast";
 import { CommandPalette, CommandPaletteTrigger } from "@/components/admin/command-palette";
@@ -50,6 +51,7 @@ const contentNavLinks: { href: string; label: string; icon: React.ComponentType<
   { href: "/admin/wisdom", label: "Wisdom", icon: Quote },
   { href: "/admin/categories", label: "Categories", icon: FolderOpen },
   { href: "/admin/sponsors", label: "Sponsors", icon: HandHeart },
+  { href: "/admin/messages", label: "Messages", icon: Mail },
 ];
 
 const pageTitles: Record<string, string> = {
@@ -66,6 +68,7 @@ const pageTitles: Record<string, string> = {
   "/admin/wisdom": "Wisdom",
   "/admin/categories": "Categories",
   "/admin/sponsors": "Sponsors",
+  "/admin/messages": "Messages",
 };
 
 type SidebarPage = Pick<Page, "id" | "slug" | "parent_id" | "title" | "sort_order" | "hidden">;

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ContentHeader } from "@/components/content-header";
 import { useState, useRef } from "react";
 import { Send, Share2, Link2, Check } from "lucide-react";
-import emailjs from "@emailjs/browser";
 import { SITE_URL } from "@/lib/site";
 
 const principles = [
@@ -82,12 +81,16 @@ export default function AboutPage() {
     setStatus("sending");
 
     try {
-      await emailjs.sendForm(
-        "service_7losx0f",
-        "template_35viseg",
-        formRef.current!,
-        "0iYM6Hgwgu4LeGLtY"
-      );
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          message: form.message,
+        }),
+      });
+      if (!res.ok) throw new Error("send failed");
       setStatus("sent");
       setForm({ name: "", email: "", message: "" });
     } catch {

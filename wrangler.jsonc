@@ -28,6 +28,11 @@
       "bucket_name": "ilmlibrary-files"
     }
   ],
+  "send_email": [
+    {
+      "name": "EMAIL"
+    }
+  ],
   "vars": {
     "CF_ACCESS_TEAM_DOMAIN": "summer-tree-64a0.cloudflareaccess.com",
     "CF_ACCESS_AUD": "4ca480d0d10d1d58a856b32fd7080a7360bee3c0b671fb26360724be63b1af5e",

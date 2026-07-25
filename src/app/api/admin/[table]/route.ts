@@ -19,6 +19,7 @@ const TABLE_COLUMNS: Record<string, string[]> = {
     "sort_order", "starts_at", "ends_at", "created_at",
   ],
   content_clicks: ["id", "content_type", "content_id", "path", "visitor_id", "clicked_at"],
+  contact_messages: ["id", "name", "email", "message", "read", "created_at"],
   lectures: ["id", "title", "slug", "speaker", "description", "audio_url", "video_url", "category_id", "created_at"],
   khutbas: ["id", "title", "slug", "speaker", "description", "audio_url", "video_url", "category_id", "created_at"],
   duas: ["id", "title", "arabic_text", "translation", "transliteration", "source", "category_id", "created_at"],
