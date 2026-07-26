@@ -27,13 +27,14 @@ export default async function HomePage({
   searchParams: Promise<{ lang?: string }>;
 }) {
   const { lang: rawLang } = await searchParams;
-  // English by default; Arabic books live behind the العربية tab.
-  const lang = rawLang === "ar" ? "ar" : "en";
+  // "New in the Library" shows the truly newest books across BOTH languages
+  // by default; the tabs narrow to English or Arabic.
+  const lang = rawLang === "ar" ? "ar" : rawLang === "en" ? "en" : "";
 
   const [allCategories, browse] = await Promise.all([
     getCategories({ contentType: "book", includeHidden: true }),
     getBooksPage({
-      lang,
+      lang: lang || undefined,
       sort: "newest",
       limit: 12,
       withCount: false,
@@ -103,7 +104,7 @@ export default async function HomePage({
           <h2 className="text-2xl md:text-3xl font-bold font-[family-name:var(--font-playfair)] text-teal-900">
             New in the Library
           </h2>
-          <LanguageToggle current={lang} basePath="/" />
+          <LanguageToggle current={lang} basePath="/" includeAll />
         </div>
         {browse.rows.length > 0 ? (
           <BookGrid
