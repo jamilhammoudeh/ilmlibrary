@@ -9,12 +9,6 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "files.ilmlibrary.org",
       },
-      // Legacy Supabase storage — remove after the R2 migration is verified.
-      {
-        protocol: "https",
-        hostname: "rmsaeculynliwrkvnibx.supabase.co",
-        pathname: "/storage/v1/object/public/**",
-      },
     ],
   },
 };
