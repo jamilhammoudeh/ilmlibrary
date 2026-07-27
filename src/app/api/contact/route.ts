@@ -7,7 +7,7 @@ import { newId } from "@/lib/d1-helpers";
 
 export const dynamic = "force-dynamic";
 
-const NOTIFY_TO = "2345mjh@gmail.com";
+const NOTIFY_TO = "contactilmlibrary@gmail.com";
 const FROM = { email: "contact@ilmlibrary.org", name: "Ilm Library Contact" };
 
 type EmailBinding = {
