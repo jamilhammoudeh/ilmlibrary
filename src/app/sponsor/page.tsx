@@ -70,7 +70,7 @@ export default function SponsorPage() {
           with placement options and pricing.
         </p>
         <a
-          href="mailto:2345mjh@gmail.com?subject=Sponsoring%20Ilm%20Library"
+          href="mailto:support@ilmlibrary.org?subject=Sponsoring%20Ilm%20Library"
           className="inline-block bg-white text-teal-900 font-semibold px-6 py-3 rounded-full hover:bg-teal-50 transition-colors"
         >
           Email us

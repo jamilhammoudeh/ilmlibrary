@@ -295,6 +295,16 @@ export default function AboutPage() {
               Spotted a mistake in a reference or translation? Please tell us.
               The work is better for it.
             </p>
+            <p className="text-gray-600 text-[14.5px] leading-[1.65] mt-4">
+              Or email us directly at{" "}
+              <a
+                href="mailto:support@ilmlibrary.org"
+                className="text-teal-700 font-medium hover:text-teal-900 border-b border-teal-700/30 hover:border-teal-700 transition-colors"
+              >
+                support@ilmlibrary.org
+              </a>
+              .
+            </p>
           </div>
 
           <div className="md:col-span-8">
