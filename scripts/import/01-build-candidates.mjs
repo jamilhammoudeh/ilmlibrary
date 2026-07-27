@@ -27,17 +27,35 @@
  *    prepared_by authors against the whitelist; every whitelisted IslamHouse
  *    author id discovered is then swept via get-author-items for full coverage.
  *
- * Rate limit: 1 req/sec. Retry 3x with backoff. Raw responses cached under
+ *  waqfeya (waqfeya.net — Next.js front-end, NestJS backend on DigitalOcean):
+ *    - waqfeya.net's book PDFs are actually hosted on archive.org; each book's
+ *      thumbnail is archive.org/download/<ARCHIVE_ID>/cover.jpg. So a Waqfeya
+ *      book is just an archive.org identifier discovered via Waqfeya's curation.
+ *    - category list (mongo ids, book counts) is curated once in
+ *      seeds/waqfeya.json (resolved from GET {api_base}/category).
+ *    - per category: GET {api_base}/book?categoryId={id}&page={n}&pageSize=100
+ *      -> {data:[{name,permalink,author:{name},thumbnail}], pagination:{total,
+ *         totalPages,hasNext}}. This is the FULL category (server caps pageSize
+ *         at 100), NOT just the ~30 books server-rendered on the category HTML.
+ *    - each book: parse ARCHIVE_ID from the thumbnail (skip waq-logo / non-
+ *      archive), run author.name through matchAuthor (split on ؛ ، /), keep only
+ *      whitelisted authors, then resolve the archive id exactly like archive-org
+ *      (GET archive.org/metadata/<id> -> pickMainPdf, size, year, cover).
+ *    - dedup also drops archive ids already committed in
+ *      state/committed-archive-org.json.
+ *
+ * Rate limit: 1 req/sec (archive.org / islamhouse), 1.5s between waqfeya backend
+ * fetches. Retry 3x with backoff. Raw responses cached under
  * scripts/import/state/cache/<source>/ (resume-safe: re-runs are cheap).
  *
  * Output:
  *   scripts/import/state/candidates-<source>.json
  *   scripts/import/REVIEW-<source>.csv
  *
- * Usage: node scripts/import/01-build-candidates.mjs --source=islamhouse|archive-org
+ * Usage: node scripts/import/01-build-candidates.mjs --source=islamhouse|archive-org|waqfeya
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import {
@@ -58,8 +76,8 @@ const MAX_PER_AUTHOR = Number(process.argv.find((a) => a.startsWith("--max-per-a
 const perAuthorCount = new Map();
 
 const source = process.argv.find((a) => a.startsWith("--source="))?.split("=")[1];
-if (!["islamhouse", "archive-org"].includes(source)) {
-  console.error("Usage: node scripts/import/01-build-candidates.mjs --source=islamhouse|archive-org");
+if (!["islamhouse", "archive-org", "waqfeya"].includes(source)) {
+  console.error("Usage: node scripts/import/01-build-candidates.mjs --source=islamhouse|archive-org|waqfeya");
   process.exit(1);
 }
 
@@ -157,6 +175,7 @@ try {
 
 const stats = {
   itemsSeen: 0, noWhitelistAuthor: 0, noPdf: 0, detailFailed: 0, searchFailed: 0,
+  noArchiveId: 0, dupeCommittedArchive: 0,
   capped: false,
 };
 const candidates = [];
@@ -203,6 +222,9 @@ function addCandidate(c) {
     language: "ar",
     dedupe_key: dedupeKey(c.title_ar, c.author.name_ar),
     blocked_hit: blocked,
+    // strong external dedup signal (e.g. archive.org id already committed);
+    // promoted to possible_dupe in finalize() unless it's an internal dupe.
+    possible_dupe_hint: !!c.possible_dupe_hint,
     flag: null, // filled in finalize()
     flag_reasons: reasons,
   });
@@ -229,6 +251,8 @@ function finalize() {
 
   const slugSet = new Set(existingSlugs);
   for (const c of candidates) {
+    // strong external dedup hint (e.g. archive.org id already committed)
+    if (!c.internal_dupe && c.possible_dupe_hint) c.possible_dupe = true;
     // possible-dupe vs live DB
     if (!c.internal_dupe && dbDedupeOk) {
       const keys = [dedupeKey(c.title_ar, c.author_ar), dedupeKey(c.title_ar, c.author_en)];
@@ -520,9 +544,193 @@ function parseSizeBytes(s) {
   return Math.round(Number(m[1]) * mult);
 }
 
+// --- source: waqfeya --------------------------------------------------------
+
+// Pull the archive.org identifier out of a Waqfeya thumbnail URL:
+//   https://archive.org/download/<ARCHIVE_ID>/cover.jpg  -> <ARCHIVE_ID>
+// Non-archive thumbnails and the "waq-logo" placeholder yield null (skipped).
+function archiveIdFromThumbnail(thumbnail) {
+  const m = String(thumbnail ?? "").match(/archive\.org\/download\/([^/?#]+)/i);
+  if (!m) return null;
+  const id = decodeURIComponent(m[1]).trim();
+  if (!id || /^waq-logo/i.test(id)) return null;
+  return id;
+}
+
+// A Waqfeya author.name is one string joining several forms, e.g.
+//   "معمر بن المثنى؛ معمر بن المثنى التيمي بالولاء، البصري، أبو عبيدة النحوي"
+// Split on the Arabic/Latin separators the whitelist matcher wants to see, so
+// containsToken can hit a full name OR a shuhra ("أبو عبيدة النحوي") individually.
+function splitAuthorName(name) {
+  const parts = String(name ?? "")
+    .split(/[؛;،,\/|]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const whole = String(name ?? "").trim();
+  return whole && !parts.includes(whole) ? [whole, ...parts] : parts;
+}
+
+async function buildWaqfeya() {
+  const cfg = JSON.parse(readFileSync(join(SEEDS, "waqfeya.json"), "utf8"));
+  const apiBase = cfg.api_base.replace(/\/$/, "");
+  const pageSize = cfg.page_size ?? 100;
+
+  // Dedup against already-committed archive-org identifiers (many Waqfeya books
+  // are archive.org items we already imported).
+  const committedArchiveIds = new Set();
+  const committedPath = join(STATE, "committed-archive-org.json");
+  if (existsSync(committedPath)) {
+    try {
+      for (const k of Object.keys(JSON.parse(readFileSync(committedPath, "utf8")))) {
+        committedArchiveIds.add(k);
+      }
+      console.log(`waqfeya: loaded ${committedArchiveIds.size} committed archive-org ids for dedup`);
+    } catch (e) {
+      console.warn(`  WARNING: could not read committed-archive-org.json — ${String(e.message ?? e).slice(0, 120)}`);
+    }
+  }
+  // Also skip identifiers already harvested in this run's own archive-org output,
+  // if present (belt-and-suspenders; committed set is the authoritative one).
+
+  // Backend fetcher (waqfeya.net API) throttled at 1.5s; archive.org gets its
+  // own 1s-throttled fetcher so the two rate limits don't interfere.
+  const waqFetcher = makeFetcher({
+    cacheDir: join(STATE, "cache", source, "waqfeya"),
+    minIntervalMs: 1500,
+  });
+  const aoFetcher = makeFetcher({
+    cacheDir: join(STATE, "cache", source, "archive"),
+    minIntervalMs: 1000,
+  });
+  const waqHeaders = {
+    accept: "application/json",
+    origin: "https://waqfeya.net",
+    referer: "https://waqfeya.net/",
+  };
+
+  // 1. Harvest all book objects across the curated categories (paginated API).
+  const books = new Map(); // archiveId -> { book, categoryName }
+  for (const cat of cfg.categories) {
+    let page = 1;
+    let total = null;
+    let totalPages = null;
+    for (;;) {
+      const url = `${apiBase}/book?categoryId=${cat.backend_id}&page=${page}&pageSize=${pageSize}`;
+      let data;
+      try {
+        data = await waqFetcher.json(url, `cat-${cat.code}-p${page}.json`, { headers: waqHeaders });
+      } catch (e) {
+        stats.searchFailed++;
+        console.warn(`  category ${cat.code} page ${page} failed: ${String(e.message ?? e).slice(0, 120)}`);
+        break;
+      }
+      const rows = Array.isArray(data.data) ? data.data : [];
+      if (total == null) {
+        total = data.pagination?.total ?? null;
+        totalPages = data.pagination?.totalPages ?? null;
+      }
+      for (const b of rows) {
+        stats.itemsSeen++;
+        const archiveId = archiveIdFromThumbnail(b.thumbnail);
+        if (!archiveId) {
+          stats.noArchiveId++;
+          continue;
+        }
+        if (!books.has(archiveId)) books.set(archiveId, { book: b, categoryName: cat.name_ar, categoryKeyword: cat.category_keyword });
+      }
+      const hasNext = data.pagination?.hasNext ?? (totalPages ? page < totalPages : rows.length === pageSize);
+      if (!hasNext || rows.length === 0 || page >= 60) break; // hard page ceiling
+      page++;
+    }
+    console.log(
+      `  ${cat.code} ${cat.name_ar}: total=${total ?? "?"} pages=${totalPages ?? "?"}, ` +
+      `${books.size} distinct archive ids so far`
+    );
+  }
+  console.log(`waqfeya: ${books.size} distinct archive.org identifiers harvested from ${cfg.categories.length} categories`);
+
+  // 2. Match authors against the whitelist; keep only whitelisted books.
+  const kept = [];
+  for (const [archiveId, entry] of books) {
+    const names = splitAuthorName(entry.book.author?.name);
+    const author = matchAuthor(names);
+    if (!author) {
+      stats.noWhitelistAuthor++;
+      continue;
+    }
+    kept.push({ archiveId, entry, author, authorNames: names });
+  }
+  console.log(`waqfeya: ${kept.length} books have a whitelisted author; resolving archive.org metadata...`);
+
+  // 3. Resolve each archive.org identifier (metadata -> main PDF, size, cover).
+  let processed = 0;
+  for (const { archiveId, entry, author, authorNames } of kept) {
+    if (candidates.length >= CAP) {
+      stats.capped = true;
+      break;
+    }
+    if (MAX_PER_AUTHOR && (perAuthorCount.get(author.id) ?? 0) >= MAX_PER_AUTHOR) {
+      continue;
+    }
+
+    const extra = [];
+    const committedDupe = committedArchiveIds.has(archiveId);
+    if (committedDupe) {
+      stats.dupeCommittedArchive++;
+      extra.push(`possible-dupe: archive.org id already committed from archive-org source (${archiveId})`);
+    }
+
+    let meta;
+    try {
+      meta = await aoFetcher.json(`https://archive.org/metadata/${archiveId}`, `meta-${archiveId}.json`);
+    } catch (e) {
+      stats.detailFailed++;
+      console.warn(`  metadata failed for ${archiveId}: ${String(e.message ?? e).slice(0, 120)}`);
+      continue;
+    }
+    const pdf = pickMainPdf(meta.files ?? []);
+    if (!pdf) {
+      stats.noPdf++;
+      continue;
+    }
+
+    // Prefer the Waqfeya (curated Arabic) title; fall back to archive metadata.
+    const title = cleanText(entry.book.name ?? meta.metadata?.title, 300);
+    if (!title) continue;
+    const subjects = [].concat(meta.metadata?.subject ?? [])
+      .flatMap((s) => String(s).split(/[;,]/)).map((s) => s.trim()).filter(Boolean);
+
+    addCandidate({
+      source_id: entry.book._id ?? archiveId,
+      source_url: entry.book.permalink
+        ? `https://waqfeya.net/books/${entry.book.permalink}`
+        : `https://waqfeya.net`,
+      title_ar: title,
+      author,
+      author_source: authorNames,
+      translator: null,
+      description: meta.metadata?.description
+        ? [].concat(meta.metadata.description).join(" ")
+        : null,
+      // category keyword from the curated Waqfeya category first, then the title.
+      category_strings: [entry.categoryKeyword, entry.categoryName, title],
+      pdf_url: `https://archive.org/download/${archiveId}/` +
+        encodeURIComponent(pdf.name).replace(/%2F/gi, "/"),
+      cover_url: entry.book.thumbnail ?? `https://archive.org/services/img/${archiveId}`,
+      size_bytes: pdf.size != null ? Number(pdf.size) : null,
+      year: extractYear(meta.metadata?.year ?? meta.metadata?.date),
+      extra_reasons: extra,
+      possible_dupe_hint: committedDupe,
+    });
+    perAuthorCount.set(author.id, (perAuthorCount.get(author.id) ?? 0) + 1);
+    if (++processed % 25 === 0) console.log(`  ${processed} candidates built...`);
+  }
+}
+
 // --- run --------------------------------------------------------------------
 
 if (source === "archive-org") await buildArchiveOrg();
+else if (source === "waqfeya") await buildWaqfeya();
 else await buildIslamhouse();
 
 finalize();
@@ -587,7 +795,7 @@ console.log(`By author:`);
 for (const [name, n] of [...byAuthor.entries()].sort((a, b) => b[1] - a[1])) {
   console.log(`  ${String(n).padStart(4)}  ${name}`);
 }
-console.log(`Skips: itemsSeen=${stats.itemsSeen} noWhitelistAuthor=${stats.noWhitelistAuthor} noPdf=${stats.noPdf} detailFailed=${stats.detailFailed} searchFailed=${stats.searchFailed}`);
+console.log(`Skips: itemsSeen=${stats.itemsSeen} noWhitelistAuthor=${stats.noWhitelistAuthor} noPdf=${stats.noPdf} detailFailed=${stats.detailFailed} searchFailed=${stats.searchFailed} noArchiveId=${stats.noArchiveId} dupeCommittedArchive=${stats.dupeCommittedArchive}`);
 if (!dbDedupeOk) console.log(`WARNING: live-DB dedupe was skipped (${dbDedupeError})`);
 console.log(`\nWrote ${candidatesPath}`);
 console.log(`Wrote ${csvPath}`);

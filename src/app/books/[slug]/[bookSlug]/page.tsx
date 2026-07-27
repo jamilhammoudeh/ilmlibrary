@@ -38,15 +38,6 @@ export default async function BookDetailPage({
   if (!book) notFound();
 
   const arabic = isArabicBook(book);
-  const showSource = Boolean(book.source && book.source_url && book.source !== "legacy");
-  let sourceHost: string | null = null;
-  if (showSource && book.source_url) {
-    try {
-      sourceHost = new URL(book.source_url).hostname;
-    } catch {
-      sourceHost = book.source_url;
-    }
-  }
 
   return (
     <>
@@ -167,21 +158,6 @@ export default async function BookDetailPage({
               />
               <AddToListButton bookId={book.id} />
             </div>
-
-            {showSource && book.source_url && (
-              <p className="mt-4 text-sm text-gray-500">
-                <span className="font-[family-name:var(--font-amiri)]" lang="ar">المصدر</span>
-                {" / Source: "}
-                <a
-                  href={book.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow"
-                  className="text-teal-700 hover:text-teal-900 underline underline-offset-2 transition-colors"
-                >
-                  {sourceHost} <span aria-hidden="true">↗</span>
-                </a>
-              </p>
-            )}
           </div>
         </div>
       </section>

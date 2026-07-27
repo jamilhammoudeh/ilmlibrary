@@ -1,0 +1,32 @@
+{
+  "_comment": "Curated Waqfeya (waqfeya.net) category harvest list. Each category maps to a Dewey-style node in the Waqfeya backend (NestJS API at api_base). We harvest books via the REST endpoint GET {api_base}/book?categoryId={backend_id}&page={n}&pageSize=100 (server caps pageSize at 100), which returns the FULL category (pagination.total/totalPages), not just the ~30 server-rendered on the category HTML page. Each book has {name, permalink, author:{name}, thumbnail} where thumbnail is an archive.org cover URL — the archive.org identifier is the segment archive.org/download/{ARCHIVE_ID}/cover.jpg. Only whitelisted-author books are kept (matchAuthor), and each archive id is resolved through archive.org/metadata like the archive-org source. category_keyword is fed to category-map.json (falls back to the author's default_category). Off-manhaj categories (التصوف/Sufism, poetry divans, logic/philosophy, non-Arabic, manuscripts, multimedia) are deliberately excluded. backend_id values were resolved from GET {api_base}/category on 2026-07-27.",
+  "api_base": "https://waqfeya-backend-r9rw8.ondigitalocean.app",
+  "page_size": 100,
+  "categories": [
+    { "code": "212",  "backend_id": "66a88d7187c55ca3e12e5678", "name_ar": "كتب التفاسير", "book_count": 228, "category_keyword": "تفسير" },
+    { "code": "211",  "backend_id": "66a88d7187c55ca3e12e5663", "name_ar": "كتب علوم القرآن", "book_count": 272, "category_keyword": "علوم القرآن" },
+    { "code": "2119", "backend_id": "66a88d7187c55ca3e12e56c9", "name_ar": "كتب مباحث قرآنية عامة", "book_count": 155, "category_keyword": "قرآن" },
+    { "code": "2118", "backend_id": "66a88d7187c55ca3e12e567e", "name_ar": "كتب التجويد والقراءات", "book_count": 146, "category_keyword": "تجويد" },
+    { "code": "2134", "backend_id": "66a88d7187c55ca3e12e56cc", "name_ar": "كتب الكتب الستة", "book_count": 259, "category_keyword": "حديث" },
+    { "code": "2137", "backend_id": "66a88d7187c55ca3e12e5666", "name_ar": "باقي مجموعات الحديث", "book_count": 621, "category_keyword": "حديث" },
+    { "code": "2136", "backend_id": "66a88d7187c55ca3e12e56d2", "name_ar": "كتب المسانيد الأخرى والجوامع", "book_count": 222, "category_keyword": "حديث" },
+    { "code": "2135", "backend_id": "66a88d7187c55ca3e12e56cf", "name_ar": "كتب مسانيد الأئمة الأربعة", "book_count": 77, "category_keyword": "حديث" },
+    { "code": "2131", "backend_id": "66a88d7187c55ca3e12e5681", "name_ar": "كتب مصطلح الحديث", "book_count": 373, "category_keyword": "مصطلح" },
+    { "code": "2133", "backend_id": "66a88d7187c55ca3e12e5684", "name_ar": "كتب الجرح والتعديل", "book_count": 273, "category_keyword": "حديث" },
+    { "code": "214",  "backend_id": "66a88d7187c55ca3e12e5669", "name_ar": "كتب التوحيد والعقيدة", "book_count": 581, "category_keyword": "التوحيد" },
+    { "code": "215",  "backend_id": "66a88d7187c55ca3e12e5687", "name_ar": "الفرق والأديان والردود", "book_count": 313, "category_keyword": "الفرق" },
+    { "code": "2161", "backend_id": "66a88d7187c55ca3e12e568a", "name_ar": "كتب أصول الفقه وقواعده", "book_count": 421, "category_keyword": "أصول الفقه" },
+    { "code": "217",  "backend_id": "66a88d7187c55ca3e12e566c", "name_ar": "كتب الفقه العام", "book_count": 669, "category_keyword": "فقه" },
+    { "code": "2174", "backend_id": "66a88d7187c55ca3e12e5735", "name_ar": "كتب الفقه الحنبلي", "book_count": 206, "category_keyword": "فقه" },
+    { "code": "2179", "backend_id": "66a88d7187c55ca3e12e568d", "name_ar": "كتب الفتاوى", "book_count": 142, "category_keyword": "فتاوى" },
+    { "code": "2169", "backend_id": "66a88d7187c55ca3e12e5690", "name_ar": "كتب السياسة الشرعية والأحكام السلطانية", "book_count": 228, "category_keyword": "فقه" },
+    { "code": "2162", "backend_id": "66a88d7187c55ca3e12e580a", "name_ar": "مكتبة الحج والعمرة والزيارة", "book_count": 109, "category_keyword": "الحج" },
+    { "code": "219",  "backend_id": "66a88d7187c55ca3e12e569f", "name_ar": "كتب السيرة النبوية", "book_count": 222, "category_keyword": "سيرة" },
+    { "code": "956",  "backend_id": "66a88d7187c55ca3e12e5675", "name_ar": "كتب التاريخ الإسلامي", "book_count": 304, "category_keyword": "تاريخ" },
+    { "code": "920",  "backend_id": "66a88d7187c55ca3e12e56a2", "name_ar": "كتب التراجم والأعلام", "book_count": 668, "category_keyword": "تراجم" },
+    { "code": "2185", "backend_id": "66a88d7187c55ca3e12e56a8", "name_ar": "كتب الدعوة والدفاع عن الإسلام", "book_count": 311, "category_keyword": "الدعوة" },
+    { "code": "2181", "backend_id": "66a88d7187c55ca3e12e566f", "name_ar": "كتب التزكية والأخلاق والآداب", "book_count": 413, "category_keyword": "آداب" },
+    { "code": "2182", "backend_id": "66a88d7187c55ca3e12e56db", "name_ar": "كتب الأذكار والشعائر", "book_count": 166, "category_keyword": "أذكار" },
+    { "code": "2188", "backend_id": "66a88d7187c55ca3e12e56e4", "name_ar": "كتب قضايا الإصلاح الإجتماعي والأسرة والمجتمع", "book_count": 99, "category_keyword": "الأسرة" }
+  ]
+}
