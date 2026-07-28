@@ -21,7 +21,11 @@ const learnLinks = [
 
 export function Footer() {
   const pathname = usePathname();
-  if (pathname?.startsWith("/admin")) return null;
+  // The reader is a full-height app surface; a footer below it would only
+  // appear after scrolling past 604 mushaf pages.
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/quran/read")) {
+    return null;
+  }
   return (
     <footer className="bg-teal-900 text-white mt-auto">
       <div className="max-w-7xl mx-auto px-6 pt-8 pb-3">

@@ -133,3 +133,393 @@ tajweed.idgham_mutaqaribayn { color: #4b5563; }
   background-size: 400px 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
+
+/* ==========================================================================
+   Quran reader (/quran/read)
+   --------------------------------------------------------------------------
+   Ported from the Tilawa web reader. The reader's components are styled
+   entirely through the semantic tokens below, so this block is what makes it
+   look like Ilm Library: teal chrome, cream mushaf paper, white cards on the
+   site's gray canvas. Nothing here overrides an existing site token — the
+   radius scale and --font-arabic are deliberately left alone so the rest of
+   the site renders exactly as before.
+   ========================================================================== */
+
+:root {
+  /* Canvas + ink: the reader sits on the same gray the site body uses, with
+     white cards separated by background contrast rather than hairlines. */
+  --background: #f0f0f0;
+  --surface: #ffffff;
+  --surface-deep: #e6e6e6;
+  --foreground: #333333;
+  --foreground-soft: rgba(51, 51, 51, 0.66);
+  --muted: #6b7280;
+  --border: rgba(0, 77, 64, 0.1);
+  --border-strong: rgba(0, 77, 64, 0.18);
+  --card: #ffffff;
+
+  /* Mushaf page: Ilm's cream, ruled and annotated in teal. The printed page
+     keeps its warm character while the chrome around it stays site-neutral. */
+  --ink: #1a1a1a;
+  --night: #15181a;
+  --paper: #faf8f5;
+  --paper-rule: rgba(0, 105, 92, 0.2);
+  --paper-meta: #00695c;
+
+  /* Filled primary action: teal-900 pill, white label — the same treatment
+     as the site navbar and buttons. */
+  --primary: #004d40;
+  --primary-foreground: #ffffff;
+
+  /* Accent drives selection, progress, and active chips. Teal, not green. */
+  --accent: #00796b;
+  --accent-deep: #004d40;
+  --accent-foreground: #ffffff;
+  --accent-soft: #e8f5f3;
+  --accent-soft-text: #00695c;
+  --accent-glow: rgba(0, 121, 107, 0.24);
+
+  /* Thematic topic tints: one hue per theme, soft fill + deep same-hue text.
+     The green slot is teal so the default reads as Ilm; the other hues stay
+     distinct because themes are told apart by color. */
+  --rose: #c95678;
+  --gold: #b99052;
+  --tint-green-bg: #e8f5f3;
+  --tint-green-text: #00695c;
+  --tint-rose-bg: #fce7ec;
+  --tint-rose-text: #b23a5b;
+  --tint-amber-bg: #fbeedc;
+  --tint-amber-text: #9a6412;
+  --tint-blue-bg: #e4eefb;
+  --tint-blue-text: #2159a6;
+  --tint-purple-bg: #ede7fa;
+  --tint-purple-text: #6341b8;
+  --tint-teal-bg: #dcf1f0;
+  --tint-teal-text: #0f7a75;
+
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-border: rgba(255, 255, 255, 0.62);
+  --glass-paper: rgba(255, 255, 255, 0.85);
+  --glass-paper-strong: rgba(255, 255, 255, 0.94);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-deep: var(--surface-deep);
+  --color-foreground: var(--foreground);
+  --color-foreground-soft: var(--foreground-soft);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-night: var(--night);
+  --color-rose: var(--rose);
+  --color-gold: var(--gold);
+  --color-paper: var(--paper);
+  --color-paper-rule: var(--paper-rule);
+  --color-paper-meta: var(--paper-meta);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-text: var(--accent-soft-text);
+  --color-accent-glow: var(--accent-glow);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-tint-green-bg: var(--tint-green-bg);
+  --color-tint-green-text: var(--tint-green-text);
+  --color-tint-rose-bg: var(--tint-rose-bg);
+  --color-tint-rose-text: var(--tint-rose-text);
+  --color-tint-amber-bg: var(--tint-amber-bg);
+  --color-tint-amber-text: var(--tint-amber-text);
+  --color-tint-blue-bg: var(--tint-blue-bg);
+  --color-tint-blue-text: var(--tint-blue-text);
+  --color-tint-purple-bg: var(--tint-purple-bg);
+  --color-tint-purple-text: var(--tint-purple-text);
+  --color-tint-teal-bg: var(--tint-teal-bg);
+  --color-tint-teal-text: var(--tint-teal-text);
+}
+
+/* --- Quran fonts ---------------------------------------------------------
+   KFGQPC faces ship in public/fonts. These are bare class rules (not @theme
+   tokens) on purpose: the site's `--font-arabic` stays Scheherazade for
+   .arabic-text everywhere else, and only the reader opts into the mushaf
+   faces. Unlayered rules win over Tailwind's generated utilities. */
+@font-face {
+  font-family: "KFGQPCHafs";
+  src: url("/fonts/UthmanicHafs.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Arabic PROSE face: KFGQPC Uthman Taha Naskh, the companion font the
+   Tafseer Muyassar database is typeset for. Unlike the Hafs face it maps
+   Arabic punctuation (U+060C/U+061B/U+061F) and precomposed alef-madda
+   correctly. Quoted Quran fragments inside tafseer carry Uthmani marks
+   Naskh deliberately lacks — per-glyph fallback sends those to
+   KFGQPCHafsProse (the Hafs file scoped to exclude the same three broken
+   punctuation codepoints), which is the KFGQPC-intended pairing. */
+@font-face {
+  font-family: "KFGQPCNaskh";
+  src: url("/fonts/UthmanTN.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KFGQPCNaskh";
+  src: url("/fonts/UthmanTN-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KFGQPCHafsProse";
+  src: url("/fonts/UthmanicHafs.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  /* The U+0600 block is split around the three broken punctuation
+     codepoints. Anything outside these ranges falls to the next face. */
+  unicode-range:
+    U+0020-007E,
+    U+0600-060B,
+    U+060D-061A,
+    U+061C-061E,
+    U+0620-06FF,
+    U+0750-077F,
+    U+FB50-FEFF;
+}
+
+.font-arabic {
+  font-family: "KFGQPCHafs", "Amiri", serif;
+  font-feature-settings: "liga", "calt";
+}
+
+.font-arabic-prose {
+  font-family: "KFGQPCNaskh", "KFGQPCHafsProse", "Amiri", "Noto Naskh Arabic", serif;
+  font-feature-settings: "liga", "calt";
+}
+
+/* The reader's display face is Playfair, the same serif the site uses for
+   headings on /about. */
+.font-display {
+  font-family: var(--font-playfair), Georgia, serif;
+  letter-spacing: 0;
+}
+
+/* Official KFGQPC basmala calligraphy (bold single-line thuluth) remapped to
+   U+FDFD. unicode-range pins it to the bismillah ligature so it can sit in
+   any stack without side effects. display:block because every fallback
+   renders U+FDFD as tofu. */
+@font-face {
+  font-family: "QuranBismillah";
+  src: url("/fonts/bismillah.woff2") format("woff2");
+  unicode-range: U+FDFD;
+  font-display: block;
+}
+
+.bismillah-glyph {
+  font-family: "QuranBismillah", "KFGQPCHafs", serif;
+  direction: rtl;
+  white-space: nowrap;
+  letter-spacing: 0; /* never letter-space Arabic */
+}
+
+/* Mushaf basmallah slot: width-aware size guard. The KFGQPC ligature is
+   5.609em wide per 1em of font size; 100cqi / 5.609 = 17.8cqi ceiling, 17.5
+   leaves margin. */
+.qpc-basmallah-slot {
+  container-type: inline-size;
+}
+
+.qpc-basmallah-slot .bismillah-glyph {
+  font-size: min(1.35em, 17.5cqi);
+  line-height: 1;
+}
+
+/* --- Mushaf page rendering ----------------------------------------------- */
+.qpc-mushaf-page {
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+.qpc-line-slot {
+  height: var(--qpc-line-slot-height, 1.85em);
+  overflow: visible;
+}
+
+.qpc-word-glyph {
+  font-size: 1em;
+  line-height: var(--qpc-glyph-line-height, 2.44);
+  color: var(--qpc-word-color, var(--ink));
+  cursor: pointer;
+  direction: rtl;
+  writing-mode: horizontal-tb;
+  -webkit-font-smoothing: antialiased;
+}
+
+.qpc-word-glyph:disabled {
+  cursor: default;
+}
+
+/* Study-view Arabic rendered from QPC page-font glyphs. 2.44 is the mushaf's
+   glyph line-height ratio: it guarantees stacked marks on consecutive
+   wrapped lines never collide. NEVER letter-space Arabic: it breaks shaping
+   and wedges gaps inside multi-codepoint word codes. */
+.qpc-study-arabic {
+  line-height: 2.44;
+}
+
+/* --- Reader surfaces + motion -------------------------------------------- */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.accent-glow {
+  box-shadow:
+    0 0 0 1px var(--accent-glow),
+    0 10px 30px -8px var(--accent-glow);
+}
+
+.section-shell {
+  width: min(calc(100% - 3rem), 76rem);
+  margin-inline: auto;
+}
+
+.section-shell-wide {
+  width: min(calc(100% - 3rem), 88rem);
+  margin-inline: auto;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Themed thin scrollbar for drawer/sheet bodies and long lists. */
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.thin-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.rule-line {
+  background-image: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+}
+
+/* Loading shimmer for the mushaf page-font skeleton and browse grid. Its own
+   keyframe name: the site's .skeleton owns `shimmer`. */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--surface-deep) 25%, var(--paper) 50%, var(--surface-deep) 75%);
+  background-size: 200% 100%;
+  animation: shimmer-reader 1.4s ease-in-out infinite;
+}
+@keyframes shimmer-reader {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Directory cards cascade in on mount. Fill is backwards (not both): it only
+   hides cards during their stagger delay; the end state equals natural
+   style, and a forwards fill would keep all 114 finished animations alive. */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.card-enter {
+  animation: card-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* Full-tier mushaf cards fade in as they mount in the reading river. */
+.river-fade-in {
+  animation: river-fade-in 0.12s ease-out;
+}
+@keyframes river-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer,
+  .card-enter,
+  .river-fade-in {
+    animation: none;
+  }
+}
+
+/* Audio bar scrubber: the rail is drawn by layered divs in audio-bar.tsx;
+   the input itself only contributes the branded thumb. */
+.audio-scrubber {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+.audio-scrubber::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 0.25rem;
+}
+.audio-scrubber::-moz-range-track {
+  background: transparent;
+  height: 0.25rem;
+}
+.audio-scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 12px;
+  width: 12px;
+  margin-top: -4px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--accent);
+  box-shadow: 0 1px 4px rgba(30, 24, 18, 0.25);
+  transition: transform 0.15s ease;
+}
+.audio-scrubber::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+.audio-scrubber::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--accent);
+  box-shadow: 0 1px 4px rgba(30, 24, 18, 0.25);
+}

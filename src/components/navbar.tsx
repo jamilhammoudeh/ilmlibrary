@@ -22,7 +22,11 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
+  // The Quran reader is a full-bleed reading app with its own toolbar (surah
+  // chip, view switch, page/juz readout, themes, search, settings) and its own
+  // menu drawer, so the site navbar would be a second, redundant bar.
   const isAdmin = pathname?.startsWith("/admin");
+  const isReader = pathname?.startsWith("/quran/read");
 
   // Close on route change
   useEffect(() => {
@@ -46,7 +50,7 @@ export function Navbar() {
     };
   }, [isOpen]);
 
-  if (isAdmin) return null;
+  if (isAdmin || isReader) return null;
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");

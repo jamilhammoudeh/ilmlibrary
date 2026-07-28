@@ -1,0 +1,11 @@
+Word-by-word English translation of the Quran.
+
+Translation: Dr. Shehnaz Shaikh and Ms. Kausar Khatri,
+"The Glorious Quran Word-for-Word Translation".
+The translators have made the text free for any halaal use,
+including sale; attribution is shipped in-app as a courtesy.
+
+Obtained via QUL / Quran.com (api.qurancdn.com), snapshotted in this
+repo at assets/quran/word-by-word/. Regenerated for the web reader by
+web/scripts/build-wbw-assets.mjs, which splits two entries (8:6, 13:37)
+so every word's position matches the QPC v4 mushaf layout glyphs 1:1.
