@@ -23,7 +23,7 @@ const STATE = join(IMPORT_DIR, "state");
 
 const source = process.argv.find((a) => a.startsWith("--source="))?.split("=")[1];
 const allowFlagged = process.argv.includes("--allow-flagged");
-if (!["islamhouse", "archive-org"].includes(source)) {
+if (!["islamhouse", "archive-org", "waqfeya"].includes(source)) {
   console.error("Usage: node scripts/import/02-apply-approvals.mjs --source=islamhouse|archive-org [--allow-flagged]");
   process.exit(1);
 }

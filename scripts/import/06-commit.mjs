@@ -37,7 +37,7 @@ const INSERT_COLUMNS = [
 
 const source = process.argv.find((a) => a.startsWith("--source="))?.split("=")[1];
 const dryRun = process.argv.includes("--dry-run");
-if (!["islamhouse", "archive-org"].includes(source)) {
+if (!["islamhouse", "archive-org", "waqfeya"].includes(source)) {
   console.error("Usage: node scripts/import/06-commit.mjs --source=islamhouse|archive-org [--dry-run]");
   process.exit(1);
 }

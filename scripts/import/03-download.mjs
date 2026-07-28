@@ -1,8 +1,8 @@
-/**
- * Stage 03 — Download approved PDFs (and source covers) to the staging dir
+﻿/**
+ * Stage 03 â€” Download approved PDFs (and source covers) to the staging dir
  * OUTSIDE the repo: C:\Users\jhamm\ilm-import-staging\<source>\<slug>.pdf|.jpg
  *
- * - 1–2s between requests, 3 attempts per file
+ * - 1â€“2s between requests, 3 attempts per file
  * - resume-safe manifest: state/download-manifest-<source>.json (sha256 + bytes)
  * - validates %PDF magic bytes and min size 50KB
  * - covers validated as JPEG/PNG magic, saved as <slug>.jpg either way
@@ -24,14 +24,14 @@ const STATE = join(IMPORT_DIR, "state");
 const MIN_PDF_BYTES = 50 * 1024;
 
 const source = process.argv.find((a) => a.startsWith("--source="))?.split("=")[1];
-if (!["islamhouse", "archive-org"].includes(source)) {
+if (!["islamhouse", "archive-org", "waqfeya"].includes(source)) {
   console.error("Usage: node scripts/import/03-download.mjs --source=islamhouse|archive-org");
   process.exit(1);
 }
 
 const approvedPath = join(STATE, `approved-${source}.json`);
 if (!existsSync(approvedPath)) {
-  console.error(`Missing ${approvedPath} — run 02-apply-approvals.mjs first.`);
+  console.error(`Missing ${approvedPath} â€” run 02-apply-approvals.mjs first.`);
   process.exit(1);
 }
 const { records } = JSON.parse(readFileSync(approvedPath, "utf8"));

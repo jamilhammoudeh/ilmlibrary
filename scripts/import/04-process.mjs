@@ -1,5 +1,5 @@
-/**
- * Stage 04 — Process downloaded books:
+﻿/**
+ * Stage 04 â€” Process downloaded books:
  *  - page count via pdf-parse v2 (devDependency; v2 API is
  *    `import { PDFParse } from "pdf-parse"` -> new PDFParse({data}).getInfo()
  *    -> InfoResult.total; verified in node_modules/pdf-parse/dist)
@@ -19,7 +19,7 @@ const IMPORT_DIR = dirname(fileURLToPath(import.meta.url));
 const STATE = join(IMPORT_DIR, "state");
 
 const source = process.argv.find((a) => a.startsWith("--source="))?.split("=")[1];
-if (!["islamhouse", "archive-org"].includes(source)) {
+if (!["islamhouse", "archive-org", "waqfeya"].includes(source)) {
   console.error("Usage: node scripts/import/04-process.mjs --source=islamhouse|archive-org");
   process.exit(1);
 }
@@ -28,7 +28,7 @@ const approvedPath = join(STATE, `approved-${source}.json`);
 const manifestPath = join(STATE, `download-manifest-${source}.json`);
 for (const p of [approvedPath, manifestPath]) {
   if (!existsSync(p)) {
-    console.error(`Missing ${p} — run the previous stages first.`);
+    console.error(`Missing ${p} â€” run the previous stages first.`);
     process.exit(1);
   }
 }
@@ -46,7 +46,7 @@ for (const [i, rec] of records.entries()) {
   const entry = manifest[rec.slug];
   if (!entry?.pdf?.ok || !existsSync(entry.pdf.path)) {
     notDownloaded++;
-    console.warn(`[${i + 1}/${records.length}] ${rec.slug}: no valid download — excluded`);
+    console.warn(`[${i + 1}/${records.length}] ${rec.slug}: no valid download â€” excluded`);
     continue;
   }
 
@@ -65,7 +65,7 @@ for (const [i, rec] of records.entries()) {
     else pagesFailed++;
   } catch (e) {
     pagesFailed++;
-    console.warn(`[${i + 1}/${records.length}] ${rec.slug}: pdf-parse failed (${String(e.message ?? e).slice(0, 120)}) — pages=null`);
+    console.warn(`[${i + 1}/${records.length}] ${rec.slug}: pdf-parse failed (${String(e.message ?? e).slice(0, 120)}) â€” pages=null`);
   }
 
   // final sha256 dedupe
@@ -84,7 +84,7 @@ for (const [i, rec] of records.entries()) {
     out.excluded = true;
     out.duplicate_of = dupOf;
     shaDupes++;
-    console.warn(`[${i + 1}/${records.length}] ${rec.slug}: identical sha256 to ${dupOf} — excluded`);
+    console.warn(`[${i + 1}/${records.length}] ${rec.slug}: identical sha256 to ${dupOf} â€” excluded`);
   } else {
     seenSha.set(entry.pdf.sha256, rec.slug);
   }

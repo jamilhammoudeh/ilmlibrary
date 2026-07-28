@@ -1,9 +1,9 @@
-/**
- * Stage 07 — Verify committed files and DB rows.
+﻿/**
+ * Stage 07 â€” Verify committed files and DB rows.
  *
  * HEADs https://files.ilmlibrary.org/<key> for every committed PDF/cover and
  * counts D1 rows for the source. NOTE: the public URLs will 404 until the R2
- * custom domain is attached at cutover — when ALL checks fail, a warning
+ * custom domain is attached at cutover â€” when ALL checks fail, a warning
  * header calls that out as the likely cause.
  *
  * Writes scripts/import/VERIFY-<source>.md.
@@ -23,14 +23,14 @@ const STATE = join(IMPORT_DIR, "state");
 const FILE_BASE = "https://files.ilmlibrary.org";
 
 const source = process.argv.find((a) => a.startsWith("--source="))?.split("=")[1];
-if (!["islamhouse", "archive-org"].includes(source)) {
+if (!["islamhouse", "archive-org", "waqfeya"].includes(source)) {
   console.error("Usage: node scripts/import/07-verify.mjs --source=islamhouse|archive-org");
   process.exit(1);
 }
 
 const committedPath = join(STATE, `committed-${source}.json`);
 if (!existsSync(committedPath)) {
-  console.error(`Missing ${committedPath} — run 06-commit.mjs first.`);
+  console.error(`Missing ${committedPath} â€” run 06-commit.mjs first.`);
   process.exit(1);
 }
 const committed = JSON.parse(readFileSync(committedPath, "utf8"));
@@ -86,14 +86,14 @@ try {
 
 // report
 const lines = [];
-lines.push(`# Verify report — ${source}`);
+lines.push(`# Verify report â€” ${source}`);
 lines.push("");
 lines.push(`Generated: ${new Date().toISOString()}`);
 lines.push("");
 if (allFailed) {
   lines.push(`> **WARNING: ALL ${checks.length} public file checks failed.**`);
   lines.push(`> Likely cause: the R2 custom domain (files.ilmlibrary.org) is not`);
-  lines.push(`> attached yet — it is only wired up at cutover. The objects are`);
+  lines.push(`> attached yet â€” it is only wired up at cutover. The objects are`);
   lines.push(`> probably fine in the bucket; re-run this script after cutover.`);
   lines.push("");
 }
@@ -118,7 +118,7 @@ if (dbError) {
   lines.push(`- committed-state inserted count: **${insertedCount}**`);
   lines.push(dbCount === insertedCount
     ? `- MATCH`
-    : `- MISMATCH — investigate (state file vs live DB)`);
+    : `- MISMATCH â€” investigate (state file vs live DB)`);
 }
 
 const outPath = join(IMPORT_DIR, `VERIFY-${source}.md`);

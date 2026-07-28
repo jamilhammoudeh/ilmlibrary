@@ -1,5 +1,5 @@
-/**
- * Stage 05 — Dry-run import plan. NO side effects (only writes the report).
+﻿/**
+ * Stage 05 â€” Dry-run import plan. NO side effects (only writes the report).
  *
  * Reads state/processed-<source>.json and writes
  * scripts/import/IMPORT-REPORT-<source>.md with: counts per category, total
@@ -18,14 +18,14 @@ const IMPORT_DIR = dirname(fileURLToPath(import.meta.url));
 const STATE = join(IMPORT_DIR, "state");
 
 const source = process.argv.find((a) => a.startsWith("--source="))?.split("=")[1];
-if (!["islamhouse", "archive-org"].includes(source)) {
+if (!["islamhouse", "archive-org", "waqfeya"].includes(source)) {
   console.error("Usage: node scripts/import/05-plan.mjs --source=islamhouse|archive-org");
   process.exit(1);
 }
 
 const processedPath = join(STATE, `processed-${source}.json`);
 if (!existsSync(processedPath)) {
-  console.error(`Missing ${processedPath} — run 04-process.mjs first.`);
+  console.error(`Missing ${processedPath} â€” run 04-process.mjs first.`);
   process.exit(1);
 }
 const { records } = JSON.parse(readFileSync(processedPath, "utf8"));
@@ -42,7 +42,7 @@ const missingTranslit = importable.filter((r) => !r.title_translit || !r.title_t
 const missingPages = importable.filter((r) => r.pages == null);
 
 const lines = [];
-lines.push(`# Import plan — ${source}`);
+lines.push(`# Import plan â€” ${source}`);
 lines.push("");
 lines.push(`Generated: ${new Date().toISOString()}`);
 lines.push("");
@@ -63,13 +63,13 @@ lines.push("");
 if (missingCovers.length) {
   lines.push(`## Missing covers`);
   lines.push("");
-  for (const r of missingCovers) lines.push(`- ${r.slug} — ${r.title_ar}`);
+  for (const r of missingCovers) lines.push(`- ${r.slug} â€” ${r.title_ar}`);
   lines.push("");
 }
 if (missingTranslit.length) {
   lines.push(`## Missing transliteration`);
   lines.push("");
-  for (const r of missingTranslit) lines.push(`- ${r.slug} — ${r.title_ar}`);
+  for (const r of missingTranslit) lines.push(`- ${r.slug} â€” ${r.title_ar}`);
   lines.push("");
 }
 lines.push(`## Sample records (${Math.min(10, importable.length)})`);
